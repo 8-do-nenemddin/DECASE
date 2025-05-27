@@ -1,0 +1,429 @@
+[
+    {
+        "id": "FUNC-001",
+        "type": "기능적",
+        "description": "비대면 대출 연장 신청 프로세스를 개발하여 적용한다.",
+        "acceptance_criteria": "사용자가 비대면으로 대출 연장 신청을 완료할 수 있다.",
+        "priority": "필수",
+        "responsible_module": "대출 관리 시스템",
+        "source_pages": [
+            9,
+            15,
+            16
+        ],
+        "raw_text_snippet": "(O2O)비대면 대출 연장 신청 프로세스 개발 적용"
+    },
+    {
+        "id": "FUNC-002",
+        "type": "기능적",
+        "description": "비대면 서류 작성 시스템을 개발하여 적용한다.",
+        "acceptance_criteria": "사용자가 비대면으로 서류를 작성하고 제출할 수 있다.",
+        "priority": "필수",
+        "responsible_module": "서류 관리 시스템",
+        "source_pages": [
+            9,
+            15
+        ],
+        "raw_text_snippet": "(O2O)비대면 서류 작성 시스템 개발 적용"
+    },
+    {
+        "id": "FUNC-003",
+        "type": "기능적",
+        "description": "신한은행 마이데이터 서비스(머니버스)와 웹뷰 방식으로 연동한다.",
+        "acceptance_criteria": "사용자가 웹뷰를 통해 신한은행 마이데이터 서비스에 접근할 수 있다.",
+        "priority": "필수",
+        "responsible_module": "데이터 연동 모듈",
+        "source_pages": [
+            9
+        ],
+        "raw_text_snippet": "신한은행 마이데이터 서비스(머니버스) 연동(웹뷰방식)"
+    },
+    {
+        "id": "NFR-001",
+        "type": "비기능적",
+        "description": "웹 컨텐츠가 Native App 수준의 화면 전환 및 동작을 제공해야 한다.",
+        "acceptance_criteria": "웹 컨텐츠의 화면 전환 및 동작이 Native App과 유사한 수준으로 구현된다.",
+        "priority": "필수",
+        "responsible_module": "프론트엔드 시스템",
+        "source_pages": [
+            9,
+            15,
+            16
+        ],
+        "raw_text_snippet": "웹 컨텐츠도 Native App 수준의 화면 전환 및 동작이 제공되어야 합니다."
+    },
+    {
+        "id": "PERF-001",
+        "type": "성능",
+        "description": "서비스의 성능 및 속도가 최대한 보장되어야 한다.",
+        "acceptance_criteria": "서비스의 응답 시간이 2초 이내로 유지된다.",
+        "priority": "필수",
+        "responsible_module": "전체 시스템",
+        "source_pages": [
+            9,
+            18,
+            21
+        ],
+        "raw_text_snippet": "서비스의 성능 및 속도가 최대한 보장되어야 합니다."
+    },
+    {
+        "id": "NFR-002",
+        "type": "비기능적",
+        "description": "OS 개발사(애플, 구글)에서 권고하는 최적의 솔루션으로 구축해야 한다.",
+        "acceptance_criteria": "애플과 구글의 권고사항을 준수하여 시스템이 구축된다.",
+        "priority": "필수",
+        "responsible_module": "모바일 플랫폼",
+        "source_pages": [
+            9,
+            15,
+            16
+        ],
+        "raw_text_snippet": "OS 개발사(애플, 구글)에서 권고하는 최적의 솔루션으로 구축하여 주시기 바랍니다."
+    },
+    {
+        "id": "PERF-002",
+        "type": "성능",
+        "description": "이벤트 등으로 사용자가 급증하여도 뱅킹 거래의 속도 및 성능에 영향 없는 구조로 설계해야 한다.",
+        "acceptance_criteria": "사용자 급증 시에도 거래 속도가 2초 이내로 유지된다.",
+        "priority": "필수",
+        "responsible_module": "백엔드 시스템",
+        "source_pages": [
+            9
+        ],
+        "raw_text_snippet": "이벤트 등으로 사용자가 급증하여도 뱅킹 거래의 속도 및 성능에 영향 없는 구조로 설계하여 주시기 바랍니다."
+    },
+    {
+        "id": "NFR-003",
+        "type": "비기능적",
+        "description": "모바일에 최적화된 방법론으로 개발하여 손쉬운 업무 확장과 유지 보수의 편의성을 높여야 한다.",
+        "acceptance_criteria": "모바일 최적화로 인해 유지보수 시간이 20% 이상 단축된다.",
+        "priority": "필수",
+        "responsible_module": "모바일 플랫폼",
+        "source_pages": [
+            9,
+            15,
+            16
+        ],
+        "raw_text_snippet": "모바일에 최적화된 방법론으로 개발하여 손쉬운 업무 확장과 유지 보수의 편의성을 높일 수 있는 방안을 제시하여 주시기 바랍니다."
+    },
+    {
+        "id": "NFR-004",
+        "type": "비기능적",
+        "description": "서비스 오류를 감지하여 바로 원인 파악이 가능하도록 앱에서 레거시까지 거래 추적이 가능한 구조를 제안해야 한다.",
+        "acceptance_criteria": "오류 발생 시 5분 이내에 원인을 파악할 수 있다.",
+        "priority": "필수",
+        "responsible_module": "모니터링 시스템",
+        "source_pages": [
+            9,
+            15
+        ],
+        "raw_text_snippet": "서비스 오류를 감지하여 바로 원인 파악이 가능하도록 앱에서 레거시까지 거래 추적이 가능한 구조를 제안하여 주시기 바랍니다."
+    },
+    {
+        "id": "NFR-005",
+        "type": "비기능적",
+        "description": "컨텐츠가 늘어나도 일괄로 다운로드 받는 방식이 아닌 추가된 컨텐츠만 고객의 인지 없이 다운로드가 가능한 구조를 제안해야 한다.",
+        "acceptance_criteria": "추가된 컨텐츠만 자동으로 다운로드되어 사용자 경험에 영향을 미치지 않는다.",
+        "priority": "필수",
+        "responsible_module": "콘텐츠 관리 시스템",
+        "source_pages": [
+            9
+        ],
+        "raw_text_snippet": "컨텐츠가 늘어나도 일괄로 다운로드 받는 방식이 아닌 추가된 컨텐츠만 고객의 인지 없이 다운로드가 가능한 구조를 제안하여 주시기 바랍니다."
+    },
+    {
+        "id": "NFR-006",
+        "type": "비기능적",
+        "description": "보안 취약점 예방 및 앱 접근성 인증마크 획득 방안을 제시해야 한다.",
+        "acceptance_criteria": "앱이 보안 취약점 검사에서 통과하고 접근성 인증마크를 획득한다.",
+        "priority": "필수",
+        "responsible_module": "보안 시스템",
+        "source_pages": [
+            11
+        ],
+        "raw_text_snippet": "보안 취약점 예방 및 앱 접근성 인증마크 획득 방안을 제시하여 주시기 바랍니다."
+    },
+    {
+        "id": "SEC-001",
+        "type": "보안",
+        "description": "로그 적제 시 비밀번호 등 보안 관련 정보의 마스킹 처리",
+        "acceptance_criteria": "로그 적제 시 비밀번호 등 보안 관련 정보가 마스킹 처리된다.",
+        "priority": "필수",
+        "responsible_module": "보안 모듈",
+        "source_pages": [
+            15,
+            17
+        ],
+        "raw_text_snippet": "○ 보안 강화 - 로그 적제 시 비밀번호 등 보안 관련 정보의 마스킹 처리 등 고객 정보보호 방안 제시"
+    },
+    {
+        "id": "SEC-002",
+        "type": "보안",
+        "description": "계정계 시스템과 통신 시 암호화 방식으로 전문 및 개별 필드 암호화 수행",
+        "acceptance_criteria": "계정계 시스템과 통신 시 제공되는 암호화 방식으로 전문 및 개별 필드가 암호화된다.",
+        "priority": "필수",
+        "responsible_module": "보안 모듈",
+        "source_pages": [
+            15
+        ],
+        "raw_text_snippet": "○ 보안 강화 - 계정계 시스템과 통신시 계정계 시스템에서 제공되는 암호화 방식으로 전문 및 개별 필드 암호화 수행"
+    },
+    {
+        "id": "INFRA-001",
+        "type": "시스템 장비 구성",
+        "description": "시스템 구성요소는 안정성 및 고가용성 확보를 위해 다중화하여 시스템 간 상호백업으로 구성",
+        "acceptance_criteria": "시스템 구성요소가 다중화되어 시스템 간 상호백업이 가능하다.",
+        "priority": "필수",
+        "responsible_module": "시스템 인프라",
+        "source_pages": [
+            16,
+            18
+        ],
+        "raw_text_snippet": "○ 시스템 구성요소는 안정성 및 고가용성 확보를 위하여 다중화하여 시스템 간 상호백업으로 구성"
+    },
+    {
+        "id": "INFRA-002",
+        "type": "시스템 장비 구성",
+        "description": "기술구조는 3 Tier(WEB-AP-DB)구조로 구성",
+        "acceptance_criteria": "기술구조가 3 Tier(WEB-AP-DB)구조로 구성된다.",
+        "priority": "필수",
+        "responsible_module": "시스템 인프라",
+        "source_pages": [
+            16,
+            18
+        ],
+        "raw_text_snippet": "○ 기술구조는 3 Tier(WEB-AP-DB)구조로 구성"
+    },
+    {
+        "id": "INFRA-003",
+        "type": "시스템 장비 구성",
+        "description": "신기술 적용이 용이한 개방형 구조의 Linux로 JBANK 시스템 구축",
+        "acceptance_criteria": "JBANK 시스템이 개방형 구조의 Linux로 구축된다.",
+        "priority": "필수",
+        "responsible_module": "시스템 인프라",
+        "source_pages": [
+            16
+        ],
+        "raw_text_snippet": "○ 신기술 적용이 용이한 개방형 구조의 Linux 로 JBANK 시스템 구축"
+    },
+    {
+        "id": "INFRA-004",
+        "type": "시스템 장비 구성",
+        "description": "H/W, 어플리케이션 및 네트워크 등 당행 통합모니터링과 연동하여 전구간 모니터링, 장애감지, 실시간 모니터링, 장애처리 및 백업/복구 대응",
+        "acceptance_criteria": "H/W, 어플리케이션 및 네트워크가 통합모니터링과 연동되어 전구간 모니터링, 장애감지, 실시간 모니터링, 장애처리 및 백업/복구가 가능하다.",
+        "priority": "필수",
+        "responsible_module": "시스템 인프라",
+        "source_pages": [
+            16
+        ],
+        "raw_text_snippet": "○ H/W, 어플리케이션 및 네트워크 등 당행 통합모니터링과 연동하여 전구간 모니터링, 장애감지, 실시간 모니터링, 장애처리 및 백업/복구 대응"
+    },
+    {
+        "id": "INFRA-005",
+        "type": "시스템 장비 구성",
+        "description": "DR 시스템은 싱글 구조로 제안",
+        "acceptance_criteria": "DR 시스템이 싱글 구조로 제안된다.",
+        "priority": "필수",
+        "responsible_module": "DR 시스템",
+        "source_pages": [
+            16
+        ],
+        "raw_text_snippet": "○ DR 시스템은 싱글 구조로 제안"
+    },
+    {
+        "id": "INFRA-006",
+        "type": "시스템 장비 구성",
+        "description": "장애 발생시 DR 운영 체계 및 장애 복구에 대해 서비스 연속성 보장 및 장애 복구 대응 방안 제시",
+        "acceptance_criteria": "장애 발생 시 DR 운영 체계가 서비스 연속성을 보장하고 장애 복구 대응 방안이 제시된다.",
+        "priority": "필수",
+        "responsible_module": "DR 시스템",
+        "source_pages": [
+            16
+        ],
+        "raw_text_snippet": "○장애 발생시 DR 운영 체계 및 장애 복구에 대해 서비스 연속성 보장 및 장애 복구 대응 방안을 제시"
+    },
+    {
+        "id": "DATA-001",
+        "type": "데이터",
+        "description": "데이터 이행 계획 수립 및 진척관리",
+        "acceptance_criteria": "데이터 이행 계획이 수립되고 진척관리가 이루어진다.",
+        "priority": "필수",
+        "responsible_module": "데이터 관리",
+        "source_pages": [
+            17
+        ],
+        "raw_text_snippet": "○ 데이터 이행 계획 수립 및 진척관리 - 데이터 매핑, 초기 이행, 변경이행 등"
+    },
+    {
+        "id": "DATA-002",
+        "type": "데이터",
+        "description": "데이터 검증 및 정비",
+        "acceptance_criteria": "데이터 검증절차 및 데이터 검증 Flow가 수립되고 데이터 정비절차 및 항목관리가 이루어진다.",
+        "priority": "필수",
+        "responsible_module": "데이터 관리",
+        "source_pages": [
+            17
+        ],
+        "raw_text_snippet": "○ 데이터 검증 및 정비 - 데이터 검증절차 및 데이터 검증 Flow - 데이터 정비절차 및 항목관리 - 데이터 오류 유형별 대응방안"
+    },
+    {
+        "id": "SEC-003",
+        "type": "보안",
+        "description": "금융감독원 권고사항에 따라 보안성 심의 준비",
+        "acceptance_criteria": "금융감독원 권고사항에 따라 보안성 심의가 준비된다.",
+        "priority": "필수",
+        "responsible_module": "보안 모듈",
+        "source_pages": [
+            17
+        ],
+        "raw_text_snippet": " 금융감독원 권고사항 - 금융회사 자체 보안성 심의 가이드에 따라 보안성 심의가 이루어 질 수 있도록 제안사는 준비하여야 함"
+    },
+    {
+        "id": "SEC-004",
+        "type": "보안",
+        "description": "감독 법규 및 지시사항 수용",
+        "acceptance_criteria": "프로젝트 진행 중 금융관련 법규의 신설이나 변경 또는 감독당국의 지시사항이 수용된다.",
+        "priority": "필수",
+        "responsible_module": "보안 모듈",
+        "source_pages": [
+            17
+        ],
+        "raw_text_snippet": " 감독 법규 및 지시사항 수용 -  프로젝트 진행 중 금융관련 법규의 신설이나 변경 또는 감독당국의 지시사항에 대해 제안사는 원칙적으로 프로젝트 구축 범위로 수용하여야 함"
+    },
+    {
+        "id": "INFRA-007",
+        "type": "시스템 장비 구성",
+        "description": "도입 대상 하드웨어 구성: WEB 서버, WAS 서버, 미디어서버, DB 서버 등",
+        "acceptance_criteria": "도입 대상 하드웨어가 명시된 수량과 구성으로 설치된다.",
+        "priority": "필수",
+        "responsible_module": "시스템 인프라",
+        "source_pages": [
+            18
+        ],
+        "raw_text_snippet": "Server WEB 서버 2 WAS 서버(WLS) 2 미디어서버 2 DB 서버(Oracle) 2 RAC WEB 테스트 서버 1 WAS/DB 테스트 서버 1"
+    },
+    {
+        "id": "INFRA-008",
+        "type": "시스템 장비 구성",
+        "description": "도입 대상 소프트웨어는 금융기관에 납품한 실적이 있는 솔루션을 도입",
+        "acceptance_criteria": "도입 대상 소프트웨어가 금융기관에 납품한 실적이 있는 솔루션으로 도입된다.",
+        "priority": "필수",
+        "responsible_module": "소프트웨어 관리",
+        "source_pages": [
+            18
+        ],
+        "raw_text_snippet": " 도입 대상 소프트웨어는 기본적으로 금융기관에 납품한 실적이 있는 솔루션을 도입하는 것을 원칙으로 함"
+    },
+    {
+        "id": "INFRA-009",
+        "type": "시스템 장비 구성",
+        "description": "제안사가 제안하는 모든 S/W는 주센터 및 재해복구센터 모두 적용",
+        "acceptance_criteria": "제안된 모든 S/W가 주센터 및 재해복구센터에 적용된다.",
+        "priority": "필수",
+        "responsible_module": "소프트웨어 관리",
+        "source_pages": [
+            18
+        ],
+        "raw_text_snippet": " 제안사가 제안하는 모든 S/W 는 주센터(죽전센터) 및 재해복구센터(일산센터) 모두 적용되어야 하며, 운영 및 개발시스템에서 사용 가능해야 함"
+    },
+    {
+        "id": "DEV-001",
+        "type": "개발 환경",
+        "description": "개발환경은 제안사가 제시하는 어플리케이션 프레임워크를 기준으로 함",
+        "acceptance_criteria": "개발환경이 제안된 어플리케이션 프레임워크를 기준으로 설정된다.",
+        "priority": "필수",
+        "responsible_module": "개발 환경",
+        "source_pages": [
+            19,
+            20
+        ],
+        "raw_text_snippet": " 개발환경은 기본적으로 제안사가 제시하는 어플리케이션 프레임워크를 기준으로 함"
+    },
+    {
+        "id": "DEV-002",
+        "type": "개발 환경",
+        "description": "개발방법론: JBANK 고도화 시스템 구축의 최적 방법론과 개발환경 제시",
+        "acceptance_criteria": "JBANK 고도화 시스템 구축을 위한 최적의 개발방법론과 개발환경이 제시된다.",
+        "priority": "필수",
+        "responsible_module": "개발 환경",
+        "source_pages": [
+            19,
+            20
+        ],
+        "raw_text_snippet": " 개발방법론 - 제안사의 JBANK 고도화 시스템 구축의 최적 방법론과 개발환경 제시"
+    },
+    {
+        "id": "DEV-003",
+        "type": "개발 환경",
+        "description": "개발 표준화: 통합 개발환경을 포함한 개발 표준화 방안 제시",
+        "acceptance_criteria": "통합 개발환경을 포함한 개발 표준화 방안이 제시된다.",
+        "priority": "필수",
+        "responsible_module": "개발 환경",
+        "source_pages": [
+            19,
+            20
+        ],
+        "raw_text_snippet": " 개발 표준화 - 업무 개발 및 유지보수를 위한 통합 개발환경을 포함한 개발 표준화 방안 제시"
+    },
+    {
+        "id": "DEV-004",
+        "type": "개발 환경",
+        "description": "개발 도구: 제주은행 시스템 구현 도구 및 기술 표준 제시",
+        "acceptance_criteria": "제주은행 시스템 구현을 위한 도구 및 기술 표준이 제시된다.",
+        "priority": "필수",
+        "responsible_module": "개발 환경",
+        "source_pages": [
+            19
+        ],
+        "raw_text_snippet": " 개발 도구 - 제주은행 시스템 구현 도구 및 기술 표준 제시"
+    },
+    {
+        "id": "TEST-001",
+        "type": "테스트",
+        "description": "JBANK 시스템 구축 전반에 걸친 테스트 마스터플랜을 수립하고 테스트 방안을 제시해야 한다.",
+        "acceptance_criteria": "테스트 마스터플랜이 수립되고 테스트 방안이 제시되었는지 확인할 수 있다.",
+        "priority": "필수",
+        "responsible_module": "테스트 관리",
+        "source_pages": [
+            21
+        ],
+        "raw_text_snippet": " JBANK 시스템 구축 전반에 걸친 테스트 마스터플랜 수립 및 테스트 방안 제시"
+    },
+    {
+        "id": "REG-001",
+        "type": "제약사항",
+        "description": "프로젝트 진행 중 금융관련 법규의 신설이나 변경 또는 감독당국의 지시사항을 프로젝트 구축 범위로 수용.",
+        "acceptance_criteria": "금융관련 법규의 변경사항이 프로젝트 범위에 반영되어 있다.",
+        "priority": "필수",
+        "responsible_module": "프로젝트 관리 모듈",
+        "source_pages": [
+            17
+        ],
+        "raw_text_snippet": " 감독 법규 및 지시사항 수용 - 프로젝트 진행 중 금융관련 법규의 신설이나 변경 또는 감독당국의 지시사항에 대해 제안사는 원칙적으로 프로젝트 구축 범위로 수용하여야 함"
+    },
+    {
+        "id": "SOFT-001",
+        "type": "시스템 장비 구성",
+        "description": "기 사용 소프트웨어 재사용을 원칙으로 하며, 금융기관에 납품한 실적이 있는 솔루션을 도입. 모든 S/W는 주센터 및 재해복구센터에 적용되어야 함.",
+        "acceptance_criteria": "모든 소프트웨어가 주센터와 재해복구센터에 설치되고 운영된다.",
+        "priority": "필수",
+        "responsible_module": "소프트웨어 모듈",
+        "source_pages": [
+            18,
+            19
+        ],
+        "raw_text_snippet": " 기 사용 소프트웨어 재사용을 원칙으로 함.  도입 대상 소프트웨어는 기본적으로 금융기관에 납품한 실적이 있는 솔루션을 도입하는 것을 원칙으로 함  도입 대상 소프트웨어는 Project License 도입을 권고(필요 시 개별 협의 가능)  기타 본 사업을 수행함에 있어서 제안사가 필요하다고 판단되는 S/W 가 있으면 추가로 제안할 수 있음  제안사가 제안하는 모든 S/W 는 주센터(죽전센터) 및 재해복구센터(일산센터) 모두 적용되어야 하며, 운영 및 개발시스템에서 사용 가능해야 함"
+    },
+    {
+        "id": "OPS-001",
+        "type": "시스템 장비 구성",
+        "description": "모든 시스템 구성은 안정성 및 고가용성을 위한 이중화 구성 및 HA 구성(Active-Active)을 원칙으로 함.",
+        "acceptance_criteria": "시스템이 이중화 및 HA 구성으로 설치되어 안정성과 고가용성을 보장한다.",
+        "priority": "필수",
+        "responsible_module": "운영 모듈",
+        "source_pages": [
+            21
+        ],
+        "raw_text_snippet": " 모든 시스템 구성은 안정성 및 고가용성을 위한 이중화 구성 및 HA 구성(Active-Active)을 원칙으로 구성할 예정임"
+    }
+]
