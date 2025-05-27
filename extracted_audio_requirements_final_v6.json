@@ -1,0 +1,245 @@
+[
+    {
+        "id": "REQ-001",
+        "description": "사용자 맞춤형 관광지 추천 기능 구현",
+        "type": "기능 요구사항",
+        "details": "개별 사용자에게 최적화된 관광지를 추천하는 기능을 시스템에 포함한다.",
+        "participants_or_assignees": [],
+        "keywords": [
+            "사용자 맞춤형",
+            "관광지 추천"
+        ]
+    },
+    {
+        "id": "REQ-002",
+        "description": "여행 일정 자동 구성 기능 구현",
+        "type": "기능 요구사항",
+        "details": "사용자의 요구 또는 선호에 따라 여행 일정을 자동으로 생성하고 제안하는 기능을 포함한다.",
+        "participants_or_assignees": [],
+        "keywords": [
+            "여행 일정 자동 구성"
+        ]
+    },
+    {
+        "id": "REQ-003",
+        "description": "지역 기반 식당 및 명소 추천 기능 구현",
+        "type": "기능 요구사항",
+        "details": "현재 위치 또는 특정 지역을 기반으로 주변의 식당과 관광 명소를 추천하는 기능을 포함한다.",
+        "participants_or_assignees": [],
+        "keywords": [
+            "지역 기반",
+            "식당 추천",
+            "명소 추천"
+        ]
+    },
+    {
+        "id": "REQ-004",
+        "description": "SNS 키워드 분석을 통한 인기 관광지 동적 추천 기능",
+        "type": "기능 요구사항",
+        "details": "SNS에서 키워드 분석을 통해 현재 인기 있는 관광지를 추출하고 이를 동적으로 추천한다.",
+        "participants_or_assignees": [],
+        "keywords": [
+            "SNS",
+            "키워드 분석",
+            "인기 관광지",
+            "동적 추천"
+        ]
+    },
+    {
+        "id": "INFO-001",
+        "description": "SNS 데이터의 신뢰성 및 일관성 부족 문제점 지적",
+        "type": "주요 정보/맥락",
+        "details": "SNS 데이터는 동적 추천에 활용될 수 있으나, 신뢰성과 일관성이 부족하다는 문제가 제기됨.",
+        "participants_or_assignees": [],
+        "keywords": [
+            "SNS 데이터",
+            "신뢰성 부족",
+            "일관성 부족"
+        ]
+    },
+    {
+        "id": "DEC-001",
+        "description": "공식 관광청 API 및 트리퍼드바이저 오픈데이터 사용 결정",
+        "type": "기술 결정",
+        "details": "SNS 데이터의 신뢰성 문제로 인해 공식 관광청 API와 트리퍼드바이저 오픈데이터를 사용하기로 결정.",
+        "participants_or_assignees": [],
+        "keywords": [
+            "공식 관광청 API",
+            "트리퍼드바이저",
+            "오픈데이터"
+        ]
+    },
+    {
+        "id": "INFO-002",
+        "description": "공식 데이터의 갱신주기 문제",
+        "type": "주요 정보/맥락",
+        "details": "공식 데이터는 갱신주기가 느려 최신 트렌드를 반영하지 못하는 문제점이 있음.",
+        "participants_or_assignees": [],
+        "keywords": [
+            "공식 데이터",
+            "갱신주기",
+            "트렌드"
+        ]
+    },
+    {
+        "id": "DEC-002",
+        "description": "SNS 데이터와 공식 데이터의 융합 사용 결정",
+        "type": "기술 결정",
+        "details": "SNS 데이터는 실시간 반영용으로, 공식 데이터는 추천 점수 산정 시 가중치 있게 반영하는 방식으로 융합 사용.",
+        "participants_or_assignees": [],
+        "keywords": [
+            "SNS 데이터",
+            "공식 데이터",
+            "융합 사용"
+        ]
+    },
+    {
+        "id": "REQ-005",
+        "description": "협업 필터링 기반 추천 시스템 구현",
+        "type": "기능 요구사항",
+        "details": "사용자 유사도 기반으로 일정을 추천하는 협업 필터링 구조를 포함한다.",
+        "participants_or_assignees": [],
+        "keywords": [
+            "협업 필터링",
+            "사용자 유사도",
+            "추천 시스템"
+        ]
+    },
+    {
+        "id": "REQ-006",
+        "description": "상황 기반 추천 시스템 구현",
+        "type": "기능 요구사항",
+        "details": "날씨, 계절, 여행 목적 등에 따라 다르게 추천되도록 상황 기반 추천 시스템을 구현한다.",
+        "participants_or_assignees": [],
+        "keywords": [
+            "상황 기반 추천",
+            "날씨",
+            "계절",
+            "여행 목적"
+        ]
+    },
+    {
+        "id": "REQ-007",
+        "description": "사용자 입력 간소화 기능 구현",
+        "type": "기능 요구사항",
+        "details": "사용자 입력을 최소화하여 간단한 질문만으로 추천이 나오도록 시스템을 설계한다.",
+        "participants_or_assignees": [],
+        "keywords": [
+            "사용자 입력",
+            "간소화",
+            "추천 시스템"
+        ]
+    },
+    {
+        "id": "REQ-008",
+        "description": "지도 기반 시각화 및 카드 UI 제공",
+        "type": "기능 요구사항",
+        "details": "추천 결과를 지도 기반 시각화와 카드 UI로 제공하여 직관성을 높인다.",
+        "participants_or_assignees": [],
+        "keywords": [
+            "지도 기반 시각화",
+            "카드 UI",
+            "추천 결과"
+        ]
+    },
+    {
+        "id": "DEC-003",
+        "description": "부기반 SPA 및 오퍼레이어지 지도 시각화 포함 결정",
+        "type": "기술 결정",
+        "details": "부기반 SPA로 진행하고 오퍼레이어지로 지도 시각화를 포함하기로 결정.",
+        "participants_or_assignees": [],
+        "keywords": [
+            "부기반 SPA",
+            "오퍼레이어지",
+            "지도 시각화"
+        ]
+    },
+    {
+        "id": "TASK-001",
+        "description": "데이터 수집 및 정제 작업 할당",
+        "type": "작업 할당",
+        "details": "데이터 수집 및 정제 작업을 김다운과 최진수에게 할당.",
+        "participants_or_assignees": [
+            "김다운",
+            "최진수"
+        ],
+        "keywords": [
+            "데이터 수집",
+            "데이터 정제"
+        ]
+    },
+    {
+        "id": "TASK-002",
+        "description": "추천 알고리즘 개발 작업 할당",
+        "type": "작업 할당",
+        "details": "추천 알고리즘 개발 작업을 이서윤과 윤지혁에게 할당.",
+        "participants_or_assignees": [
+            "이서윤",
+            "윤지혁"
+        ],
+        "keywords": [
+            "추천 알고리즘",
+            "개발"
+        ]
+    },
+    {
+        "id": "TASK-003",
+        "description": "프론트 앤드 및 사용자 UI 개발 작업 할당",
+        "type": "작업 할당",
+        "details": "프론트 앤드 및 사용자 UI 개발 작업을 박정호에게 할당.",
+        "participants_or_assignees": [
+            "박정호"
+        ],
+        "keywords": [
+            "프론트 앤드",
+            "사용자 UI"
+        ]
+    },
+    {
+        "id": "GOAL-001",
+        "description": "5월 20일까지 1차 프로토타입 완성 목표",
+        "type": "일정 목표",
+        "details": "5월 20일까지 1차 프로토타입을 완성하는 것을 목표로 설정.",
+        "participants_or_assignees": [],
+        "keywords": [
+            "1차 프로토타입",
+            "완성 목표",
+            "5월 20일"
+        ]
+    },
+    {
+        "id": "GOAL-002",
+        "description": "6월 초 사용자 테스트 목표",
+        "type": "일정 목표",
+        "details": "6월 초에 사용자 테스트를 진행하는 것을 목표로 설정.",
+        "participants_or_assignees": [],
+        "keywords": [
+            "사용자 테스트",
+            "6월 초",
+            "목표"
+        ]
+    },
+    {
+        "id": "REQ-009",
+        "description": "추천 결과 공유 기능 구현",
+        "type": "기능 요구사항",
+        "details": "여행 일정 공유 링크를 통해 추천 결과를 공유할 수 있는 기능을 구현한다.",
+        "participants_or_assignees": [],
+        "keywords": [
+            "추천 결과",
+            "공유 기능",
+            "여행 일정"
+        ]
+    },
+    {
+        "id": "REQ-010",
+        "description": "친구 초대 및 소셜 기능 고려",
+        "type": "기능 요구사항",
+        "details": "친구 초대 기능과 함께 소셜 기능을 일부 고려하여 시스템에 포함한다.",
+        "participants_or_assignees": [],
+        "keywords": [
+            "친구 초대",
+            "소셜 기능"
+        ]
+    }
+]
