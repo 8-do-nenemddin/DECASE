@@ -55,6 +55,7 @@ pillow = "10.*"
 tiktoken = "0.*"
 tenacity = "8.*"
 nest-asyncio = "1.*"
+whisper = "^1.1.10"
 
 [build-system]
 requires = ["poetry-core"]
