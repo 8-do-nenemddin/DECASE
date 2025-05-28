@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🙋🏻 문의는 슬랙으로
+    url: https://theskala.slack.com/archives/C08SX9K42G5
+    about: 이슈가 아니라 질문이라면 슬랙으로 문의해주세요.
