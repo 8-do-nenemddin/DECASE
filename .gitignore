@@ -3,3 +3,7 @@ output/
 data/
 docs/
 poetry.lock
+
+.DS_Store
+faiss_requirement_store
+test.ipynb
