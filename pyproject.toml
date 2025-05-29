@@ -61,6 +61,7 @@ nest-asyncio = "1.*"
 ipykernel = "^6.29.5"
 openai-whisper = "^20240930"
 numpy = "<2.0"
+langgraph = "^0.4.7"
 
 [build-system]
 requires = ["poetry-core"]
