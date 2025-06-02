@@ -3,7 +3,10 @@ output/
 data/
 docs/
 poetry.lock
+.venv
 
 .DS_Store
 faiss_requirement_store
 test.ipynb
+
+**/__pycache__/
