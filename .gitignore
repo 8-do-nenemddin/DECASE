@@ -1,6 +1,8 @@
 .env
 output/
 data/
+
+generated_mockups_final_v3/
 docs/
 poetry.lock
 
