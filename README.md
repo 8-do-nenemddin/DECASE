@@ -12,4 +12,5 @@ poetry shell
 ```
 3. 프로젝트 실행
 ```
+uvicorn main:app --reload --host 0.0.0.0 --port 8001
 ```
