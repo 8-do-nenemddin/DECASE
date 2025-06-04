@@ -5,6 +5,48 @@ import fitz # PyMuPDF
 import re
 from typing import List, Tuple, Optional, Dict, Any
 
+from langchain_core.documents import Document
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+def extract_pages_as_documents(pdf_path: str) -> List[Document]:
+    docs = []
+    try:
+        document_fitz = fitz.open(pdf_path)
+        print(f"'{pdf_path}' 파일에서 텍스트 추출 중 (총 {len(document_fitz)} 페이지)...")
+        for page_num in range(len(document_fitz)):
+            page = document_fitz.load_page(page_num)
+            text = page.get_text("text", sort=True)
+            if text.strip(): # 내용이 있는 페이지만 추가
+                docs.append(Document(page_content=text, metadata={"page_number": page_num + 1}))
+            if (page_num + 1) % 10 == 0 or (page_num + 1) == len(document_fitz):
+                 print(f"  {page_num + 1}/{len(document_fitz)} 페이지 처리 완료.")
+        return docs
+    except Exception as e:
+        print(f"오류: PDF 파일 '{pdf_path}'에서 텍스트 추출 중 문제가 발생했습니다: {e}")
+        return []
+
+def create_chunks_from_documents(
+    documents: List[Document],
+    chunk_size: int = 2000,
+    chunk_overlap: int = 200
+) -> List[Document]:
+    if not documents:
+        return []
+
+    print(f"Document 청킹 중 (청크 크기: {chunk_size}, 중복: {chunk_overlap})...")
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
+        length_function=len,
+        separators=["\n\n\n", "\n\n", "\n", ". ", " ", ""],
+        keep_separator=False
+    )
+    # split_documents는 Document 리스트를 받아 각 Document를 청킹하고,
+    # 원본 Document의 metadata를 청크 Document로 복사해줌.
+    chunked_documents = text_splitter.split_documents(documents)
+    print(f"총 {len(chunked_documents)}개의 청크(Document) 생성 완료.")
+    return chunked_documents
+
 def extract_text_with_page_info_from_pdf(pdf_path: str) -> Tuple[Optional[List[str]], int]:
     # as_is_module.ipynb의 extract_text_with_page_info 함수 내용
     # 반환 타입을 (페이지 텍스트 리스트, 총 페이지 수)로 변경
@@ -80,8 +122,9 @@ def convert_json_to_csv(json_file_path: str, csv_file_path: str):
     주어진 JSON 파일에서 데이터를 읽어 지정된 CSV 양식으로 변환하여 저장합니다.
     """
     csv_headers = [
-        "요구사항 ID", "요구사항유형(기능/비기능)", "대분류", "중분류", "소분류",
-        "요구사항 명", "요구사항 설명", "중요도", "난이도"
+        "요구사항 ID", "유형(기능/비기능)", "요구사항명", "요구사항 상세설명", 
+        "대상 업무", "요건처리 상세", "대분류", "중분류", "소분류",
+        "중요도", "난이도", "RFP"
     ]
     try:
         with open(json_file_path, 'r', encoding='utf-8') as json_file:
@@ -116,13 +159,16 @@ def convert_json_to_csv(json_file_path: str, csv_file_path: str):
                 row_to_write = [
                     req.get("id", ""),
                     req.get("type", ""),
+                    req.get("description_name", ""),
+                    req.get("description_content", ""),
+                    req.get("target_task", ""),
+                    req.get("processing_detail", ""),
                     req.get("category_large", ""),
                     req.get("category_medium", ""),
                     req.get("category_small", ""),
-                    req.get("description", ""),
-                    req.get("detailed_description", ""),
                     req.get("importance", ""),
-                    req.get("difficulty", "")
+                    req.get("difficulty", ""),
+                    req.get("rfp_page", "")
                 ]
                 writer.writerow(row_to_write)
         print(f"성공: '{json_file_path}' 파일의 내용이 '{csv_file_path}' CSV 파일로 성공적으로 변환되었습니다.")
