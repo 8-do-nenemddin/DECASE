@@ -52,7 +52,7 @@ def generate_detailed_prompt_text(description: str, snippet: Optional[str], modu
 """
     return prompt
 
-def get_detailed_description_from_llm(description: str, snippet: Optional[str], module: Optional[str]) -> str:
+def get_detailed_description_agent(description: str, snippet: Optional[str], module: Optional[str]) -> str:
     """
     OpenAI API를 호출하여 상세 설명을 생성합니다.
     description_agent.ipynb의 get_detailed_description 함수 내용을 기반으로 합니다.
@@ -70,5 +70,5 @@ def get_detailed_description_from_llm(description: str, snippet: Optional[str], 
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
-        print(f"Error in get_detailed_description_from_llm for '{description[:30]}...': {e}")
+        print(f"Error in get_detailed_description_agent for '{description[:30]}...': {e}")
         return f"상세 설명 생성 중 오류 발생: {str(e)}"
