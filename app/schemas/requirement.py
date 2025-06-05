@@ -11,6 +11,7 @@ class RequirementAnalysisState(TypedDict, total=False):
     target_task: str
     rfp_page: int
     processing_detail: str
+    raw_text: str
 
     # Fields populated by LLM tasks
     id: str
