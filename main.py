@@ -4,6 +4,7 @@ from app.api.v1 import process as process_router # process.py에서 정의한 �
 from app.api.v1 import asis as asis_router
 from app.api.v1 import description as description_router
 from app.api.v1 import refine as refine_router
+from app.api.v1 import mockup as mockup_router
 
 app = FastAPI(
     title="RFP Analysis Service",
@@ -16,6 +17,8 @@ app.include_router(process_router.router, prefix="/api/v1/requirement", tags=["R
 app.include_router(refine_router.router, prefix="/api/v1/requirement", tags=["RFP"]) # 신규 라우터 추가
 app.include_router(asis_router.router, prefix="/api/v1/asis", tags=["As-Is"]) # 신규 라우터 추가
 # app.include_router(description_router.router, prefix="/api/v1", tags=["Requirement Description Generation"]) # 신규 라우터 추가
+app.include_router(mockup_router.router, prefix="/api/v1/mockup", tags=["Mockup"]) # 추가
+
 
 @app.get("/")
 async def root():
