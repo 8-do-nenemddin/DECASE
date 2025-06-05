@@ -55,6 +55,7 @@ def background_process_and_save(
             "target_task": req_data.get("대상업무"),
             "rfp_page": req_data.get("RFP"),
             "processing_detail": req_data.get("요건처리 상세"),
+            "raw_text": req_data.get("출처 문장")
         }
         # None 값을 가진 키는 제거 (선택적)
         inputs_for_graph = {k: v for k, v in inputs_for_graph.items() if v is not None}

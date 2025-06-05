@@ -3,10 +3,23 @@ import json
 import csv
 import fitz # PyMuPDF
 import re
+import os
 from typing import List, Tuple, Optional, Dict, Any
 
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+def sanitize_filename(name: str) -> str:
+    """파일 이름으로 사용하기 어려운 문자를 제거하거나 대체합니다."""
+    if not isinstance(name, str):
+        name = str(name)
+    name = re.sub(r'[<>:"/\\|?*]', '_', name)
+    name = re.sub(r'\s+', '_', name)
+    return name[:100] # 파일명 길이 제한
+
+def ensure_output_directory(path: str):
+    os.makedirs(path, exist_ok=True)
+
 
 def extract_pages_as_documents(pdf_path: str) -> List[Document]:
     docs = []
@@ -124,7 +137,7 @@ def convert_json_to_csv(json_file_path: str, csv_file_path: str):
     csv_headers = [
         "요구사항 ID", "유형(기능/비기능)", "요구사항명", "요구사항 상세설명", 
         "대상 업무", "요건처리 상세", "대분류", "중분류", "소분류",
-        "중요도", "난이도", "RFP"
+        "중요도", "난이도", "RFP", "출처문장"
     ]
     try:
         with open(json_file_path, 'r', encoding='utf-8') as json_file:
@@ -168,7 +181,8 @@ def convert_json_to_csv(json_file_path: str, csv_file_path: str):
                     req.get("category_small", ""),
                     req.get("importance", ""),
                     req.get("difficulty", ""),
-                    req.get("rfp_page", "")
+                    req.get("rfp_page", ""),
+                    req.get("raw_text", "")
                 ]
                 writer.writerow(row_to_write)
         print(f"성공: '{json_file_path}' 파일의 내용이 '{csv_file_path}' CSV 파일로 성공적으로 변환되었습니다.")
@@ -178,3 +192,40 @@ def convert_json_to_csv(json_file_path: str, csv_file_path: str):
     except Exception as e:
         print(f"CSV 변환 중 예기치 않은 오류 발생: {e}")
         raise
+
+
+def load_requirements_data_for_mockup(filepath: str) -> List[Dict[str, Any]]:
+    """
+    목업 생성을 위한 요구사항 파일을 로드합니다. (기존 RequirementsLoader.load_from_file 기능)
+    """
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        print(f"요구사항 파일 '{filepath}' 로드 성공 (목업용).")
+        if isinstance(data, list): # 일반적으로 요구사항 목록은 리스트
+            return data
+        elif isinstance(data, dict) and "requirements" in data and isinstance(data["requirements"], list): # 혹은 특정 키 아래 리스트
+            return data["requirements"]
+        else:
+            print(f"경고: 파일 '{filepath}'의 내용이 예상된 리스트 또는 특정 키를 가진 딕셔너리 형식이 아닙니다.")
+            return [] # 빈 리스트 반환 또는 예외 처리
+    except FileNotFoundError:
+        print(f"오류: 파일 '{filepath}'를 찾을 수 없습니다.")
+        return []
+    except json.JSONDecodeError:
+        print(f"오류: 파일 '{filepath}'가 유효한 JSON 형식이 아닙니다.")
+        return []
+    except Exception as e:
+        print(f"파일 로드 중 예기치 않은 오류 발생: {e}")
+        return []
+
+def save_html_content(html_content: str, filepath: str):
+    """HTML 내용을 지정된 경로에 저장합니다."""
+    try:
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write(html_content)
+        print(f"HTML 파일 저장: {filepath}")
+    except Exception as e:
+        print(f"HTML 파일 저장 중 오류 발생 ({filepath}): {e}")
+        # import traceback # 필요시 상세 에러 로깅
+        # traceback.print_exc()

@@ -11,6 +11,7 @@ INPUT_DIR = "app/docs"
 OUTPUT_CSV_DIR = "app/output/SRS_csv"
 OUTPUT_JSON_DIR = "app/output/SRS_json"
 OUTPUT_ASIS_DIR = "app/output/ASIS_md"
+OUTPUT_MOCKUP_DIR = "app/output/mockup_html"
 
 CHUNK_SIZE = 2000
 CHUNK_OVERLAP = 200
