@@ -16,8 +16,8 @@ app = FastAPI(
 
 # /api/v1 접두사와 함께 process 라우터 포함
 app.include_router(process_router.router, prefix="/api/v1/requirements", tags=["RFP"])
-app.include_router(refine_router.router, prefix="/api/v1/requirements", tags=["RFP"]) # 신규 라우터 추가
-app.include_router(asis_router.router, prefix="/api/v1/asis", tags=["As-Is"]) # 신규 라우터 추가
+app.include_router(refine_router.router, prefix="/api/v1/requirements", tags=["RFP"]) 
+app.include_router(asis_router.router, prefix="/api/v1/requirements", tags=["As-Is"]) 
 # app.include_router(description_router.router, prefix="/api/v1", tags=["Requirement Description Generation"]) # 신규 라우터 추가
 app.include_router(mockup_router.router, prefix="/api/v1/mockup", tags=["Mockup"]) # 추가
 app.include_router(faiss_router.router, prefix="/api/v1/faiss", tags=["FAISS-Indexing"]) # 새 라우터 추가
