@@ -13,28 +13,28 @@ spec:
       paths:
       - backend:
           service:
-            name: decase-ingress-test
+            name: decase-ai
             port:
               number: 8080
         path: /api
         pathType: Prefix
       - backend:
           service:
-            name: decase-ingress-test
+            name: decase-ai
             port:
               number: 8081
         path: /actuator
         pathType: Prefix
       - backend:
           service:
-            name: decase-ingress-test
+            name: decase-ai
             port:
               number: 8080
-        path: /swagger
+        path: /docs
         pathType: Prefix
       - backend:
           service:
-            name: decase-ingress-test
+            name: decase-ai
             port:
               number: 8080
         path: /
