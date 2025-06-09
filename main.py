@@ -5,6 +5,8 @@ from app.api.v1 import asis as asis_router
 from app.api.v1 import description as description_router
 from app.api.v1 import refine as refine_router
 from app.api.v1 import mockup as mockup_router
+from app.api.v1 import faiss as faiss_router
+from app.api.v1 import request as request_router
 
 app = FastAPI(
     title="RFP Analysis Service",
@@ -18,7 +20,8 @@ app.include_router(refine_router.router, prefix="/api/v1/requirements", tags=["R
 app.include_router(asis_router.router, prefix="/api/v1/asis", tags=["As-Is"]) # 신규 라우터 추가
 # app.include_router(description_router.router, prefix="/api/v1", tags=["Requirement Description Generation"]) # 신규 라우터 추가
 app.include_router(mockup_router.router, prefix="/api/v1/mockup", tags=["Mockup"]) # 추가
-
+app.include_router(faiss_router.router, prefix="/api/v1/faiss", tags=["FAISS-Indexing"]) # 새 라우터 추가
+app.include_router(request_router.router, prefix="/api/v1/request", tags=["Update Request"]) # 새 라우터 추가
 
 @app.get("/")
 async def root():
