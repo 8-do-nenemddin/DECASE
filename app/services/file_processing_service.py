@@ -5,6 +5,7 @@ import fitz # PyMuPDF
 import re
 import os
 from typing import List, Tuple, Optional, Dict, Any
+from io import BytesIO
 
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -56,11 +57,16 @@ def create_chunks_from_documents(
     print(f"총 {len(chunked_documents)}개의 청크(Document) 생성 완료.")
     return chunked_documents
 
-def extract_text_with_page_info_from_pdf(pdf_path: str) -> Tuple[Optional[List[str]], int]:
     # as_is_module.ipynb의 extract_text_with_page_info 함수 내용
     # 반환 타입을 (페이지 텍스트 리스트, 총 페이지 수)로 변경
+def extract_text_with_page_info_from_pdf(pdf_path: str | BytesIO) -> Tuple[Optional[List[str]], int]:
     try:
-        document = fitz.open(pdf_path)
+        # BytesIO 객체인 경우와 파일 경로인 경우를 구분하여 처리
+        if isinstance(pdf_path, BytesIO):
+            document = fitz.open(stream=pdf_path.getvalue(), filetype="pdf")
+        else:
+            document = fitz.open(pdf_path)
+            
         page_texts = []
         for page_num in range(document.page_count):
             page = document.load_page(page_num)
