@@ -1,4 +1,3 @@
-# app/routers/description.py
 import os
 import traceback
 import uuid # 고유 파일명 생성을 위해 추가
@@ -7,16 +6,13 @@ from typing import List, Dict, Any
 from app.schemas.description import DescriptionGenerationBatchResponse # 응답 모델
 # 파일 처리 서비스는 app/services/ 에 있다고 가정 (폴더 구조에 따라 경로 조정)
 from app.services.file_processing_service import load_requirements_from_json, save_results_to_json
-from app.agents.description_agent import get_detailed_description_from_llm
+from app.agents.description_agent import get_detailed_description_agent
 
 router = APIRouter()
 
 # 임시 파일 저장 및 출력 경로 (다른 라우터와 공유 가능하도록 app.core.config 등에서 관리하는 것이 좋음)
-TEMP_INPUT_DIR = os.path.join(os.getcwd(), "temp_input_desc_agent")
-TEMP_OUTPUT_DIR = os.path.join(os.getcwd(), "temp_output_desc_agent")
-
-os.makedirs(TEMP_INPUT_DIR, exist_ok=True)
-os.makedirs(TEMP_OUTPUT_DIR, exist_ok=True)
+INPUT_DIR = os.path.join(os.getcwd(), "input_desc_agent")
+OUTPUT_DIR = os.path.join(os.getcwd(), "output_desc_agent")
 
 def _process_description_generation_for_file(input_filepath: str, output_filepath: str):
     """
@@ -46,7 +42,7 @@ def _process_description_generation_for_file(input_filepath: str, output_filepat
 
             if desc: # 핵심 필드인 description이 있는 경우에만 처리
                 try:
-                    detailed_desc_text = get_detailed_description_from_llm(desc, snippet, module)
+                    detailed_desc_text = get_detailed_description_agent(desc, snippet, module)
                     req["detailed_description"] = detailed_desc_text
                     processed_count +=1
                 except Exception as e_item:
@@ -97,14 +93,14 @@ async def generate_descriptions_upload_endpoint(
 
     # 입력 파일 저장 (고유한 임시 파일명 사용)
     unique_id = uuid.uuid4()
-    temp_input_filename = f"uploaded_{unique_id}_{input_file.filename}"
-    temp_input_filepath = os.path.join(TEMP_INPUT_DIR, temp_input_filename)
+    input_filename = f"uploaded_{unique_id}_{input_file.filename}"
+    input_filepath = os.path.join(INPUT_DIR, input_filename)
 
     try:
-        with open(temp_input_filepath, "wb") as buffer:
+        with open(input_filepath, "wb") as buffer:
             content = await input_file.read()
             buffer.write(content)
-        print(f"입력 파일 임시 저장: {temp_input_filepath}")
+        print(f"입력 파일 임시 저장: {input_filepath}")
     except Exception as e:
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"입력 파일 '{input_file.filename}' 저장 실패: {str(e)}")
@@ -118,12 +114,12 @@ async def generate_descriptions_upload_endpoint(
     if not safe_output_filename: # 사용자가 확장자만 입력했거나 빈 문자열일 경우
         safe_output_filename = f"detailed_output_{unique_id}.json"
 
-    final_output_filepath = os.path.join(TEMP_OUTPUT_DIR, safe_output_filename)
+    final_output_filepath = os.path.join(OUTPUT_DIR, safe_output_filename)
 
     # 백그라운드 작업 추가
     background_tasks.add_task(
         _process_description_generation_for_file,
-        temp_input_filepath,
+        input_filepath,
         final_output_filepath
     )
 

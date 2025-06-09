@@ -4,23 +4,23 @@ from app.core.config import OPENAI_API_KEY, LLM_MODEL
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-def generate_difficulty_prompt_text(description: str, detailed_description: str, module: str) -> str:
+def generate_difficulty_prompt_text(description_name: str, description_content: str, target_task: str) -> str:
     # 기존 generate_difficulty_prompt_text 함수 내용 붙여넣기
     return f"""
 당신은 소프트웨어 요구사항의 기술적 구현 난이도를 분석하고 평가하는 **수십 년 경력의 베테랑 개발 팀장 또는 시스템 아키텍트**입니다. 제시된 요구사항의 **기술적 복잡성, 필요한 리서치 및 학습량, 구현에 필요한 공수, 외부 시스템과의 연동 복잡성, 테스트의 난해함, 그리고 잠재적인 리스크** 등을 종합적으로 고려하여 난이도를 '상', '중', '하' 중 하나로 매우 신중하고 일관성 있게 평가해야 합니다.
 
 다음은 시스템에 대한 요구사항입니다:
 
-[요구사항 설명]
-{description}
+[요구사항 명]
+{description_name}
 
 [상세 설명]
-{detailed_description}
+{description_content}
 
-[담당 모듈]
-{module}
+[대상 업무]
+{target_task}
 
-요구사항을 분석한 뒤, 다음의 **판단 가이드라인과 세부 평가 기준**을 참고하여 난이도를 평가하세요:
+요구사항을 분석한 뒤 전체 시스템에 대한 개요를 파악하고, 다음의 **판단 가이드라인과 세부 평가 기준**을 참고하여 난이도를 평가하세요:
 
 **[판단 가이드라인: 난이도에 영향을 미치는 주요 요소]**
 1.  **요구사항의 명확성 및 구체성:** 요구사항이 모호하거나 해석의 여지가 많을수록 분석 및 설계 단계부터 어려움이 추가되어 난이도가 상승합니다.
@@ -35,14 +35,14 @@ def generate_difficulty_prompt_text(description: str, detailed_description: str,
 **[난이도 평가 기준]**
 
 * **상 (H, High):**
-    * **판단 근거:** 위의 판단 가이드라인 중 **다수 항목에서 높은 수준의 복잡성 또는 불확실성**이 확인되거나, **특정 한두 요소가 프로젝트 일정에 심각한 지연을 초래할 만큼 매우 치명적인 기술적 장벽**을 포함하는 경우.
+    * **판단 근거:** 위의 판단 가이드라인 중 **다수 항목에서 높은 수준의 복잡성 또는 불확실성**이 확인되거나, **특정 한두 요소가 프로젝트 일정에 심각한 지연을 초래할 만큼 치명적인 기술적 장벽**을 포함하는 경우.
     * **특징적 상황:**
         * 핵심 아키텍처 변경 또는 검증되지 않은 신기술의 광범위한 도입/연구가 필요함.
-        * 매우 복잡한 알고리즘 설계 및 구현, 또는 전례 없는 수준의 시스템 연동이 요구됨.
+        * 복잡한 알고리즘 설계 및 구현, 또는 전례 없는 수준의 시스템 연동이 요구됨.
         * 요구사항의 불확실성이 극도로 높아 초기 분석/설계 단계에서부터 상당한 시간과 리서치, PoC(Proof of Concept)가 필요함.
         * 구현 실패의 리스크가 높거나, 성공하더라도 사전에 계획된 개발 일정을 현저히 초과할 가능성이 매우 농후함.
         * 해결을 위해 팀 내 최고 수준의 전문가 투입 또는 외부 전문 컨설팅이 필요할 수 있음.
-    * **일정 영향:** 자체 개발 일정에 **심각한 차질(예: 주요 마일스톤의 상당한 지연, 예정된 리소스 초과 등)**을 초래할 정도의 매우 높은 노력과 시간이 필요하며, 별도의 핵심 과제로 관리되어야 하는 수준.
+    * **일정 영향:** 자체 개발 일정에 **심각한 차질(예: 주요 마일스톤의 상당한 지연, 예정된 리소스 초과 등)**을 초래할 정도의 높은 노력과 시간이 필요하며, 별도의 핵심 과제로 관리되어야 하는 수준.
 
 * **중 (M, Medium):**
     * **판단 근거:** 판단 가이드라인 중 **일부 항목에서 중간 정도의 복잡성**이 관찰되거나, 해결해야 할 몇 가지 기술적 고려사항 및 도전 과제가 명확히 존재하는 경우.
@@ -66,8 +66,8 @@ def generate_difficulty_prompt_text(description: str, detailed_description: str,
 난이도: <상|중|하>
 """
 
-def get_difficulty_agent(description: str, detailed_description: str, module: str) -> str:
-    prompt = generate_difficulty_prompt_text(description, detailed_description, module)
+def get_difficulty_agent(description_name: str, description_content: str, target_task: str) -> str:
+    prompt = generate_difficulty_prompt_text(description_name, description_content, target_task)
     try:
         response = client.chat.completions.create(
             model=LLM_MODEL,
