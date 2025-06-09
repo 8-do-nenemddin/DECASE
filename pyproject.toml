@@ -64,6 +64,7 @@ numpy = "<2.0"
 langgraph = "^0.4.7"
 fastapi = "^0.115.12"
 uvicorn = {extras = ["standard"], version = "^0.34.2"}
+anthropic = "^0.52.2"
 sentence-transformers = "^4.1.0"
 
 [build-system]
