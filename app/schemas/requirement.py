@@ -46,9 +46,7 @@ class RefineResponse(BaseModel):
     output_json_file: str
     errors: List[str] = []
 
-# 처리 결과 응답 모델 (예시)
+# 처리 결과 응답 모델
 class ProcessResponse(BaseModel):
     message: str
-    output_json_file: str
-    output_csv_file: str
-    errors: List[str] = []
+    requirements: List[Dict[str, Any]]
