@@ -106,7 +106,6 @@ def generate_as_is_report_service(
     final_as_is_report_parts.append("\\n\\n## 2. 주요 기능 현황\\n")
     final_as_is_report_parts.append(functional_content)
 
-    # ... (비기능, 기술 아키텍처 섹션 통합 로직은 위와 유사하게 _consolidate_section_content_logic 사용) ...
     final_as_is_report_parts.append("\\n\\n## 3. 비기능 요구사항 현황\\n")
     non_functional_titles = {
         "performance": "가. 성능", "security": "나. 보안", "data": "다. 데이터",
