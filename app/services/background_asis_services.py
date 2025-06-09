@@ -1,7 +1,15 @@
 import os
 import traceback
+from io import BytesIO
 
 from fastapi import APIRouter, BackgroundTasks, UploadFile, File, HTTPException
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.enums import TA_JUSTIFY
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+import markdown
 
 from app.schemas.asis import AsIsReportResponse, TargetSection
 from app.services.file_processing_service import (
@@ -13,16 +21,24 @@ from app.agents.asis_analysis_agent import (
     get_target_sections
 )
 from app.agents.report_generation_agent import generate_as_is_report_service
-from app.core.config import OUTPUT_ASIS_DIR
 
+# 한글 폰트 등록
+FONT_PATH = os.path.join(os.path.dirname(__file__), '..', '..', 'fonts', 'NanumGothic.ttf')
+pdfmetrics.registerFont(TTFont('NanumGothic', FONT_PATH))
 
-def run_as_is_analysis_background(pdf_path: str, report_filename: str):
+def run_as_is_analysis(pdf_content: bytes) -> bytes:
     try:
-        print(f"As-Is 분석 백그라운드 작업 시작: {pdf_path}")
-        page_texts, total_pages = extract_text_with_page_info_from_pdf(pdf_path)
+        print(f"As-Is background 분석 시작: {pdf_content}")
+        # Create a temporary BytesIO object for the PDF content
+        pdf_buffer = BytesIO(pdf_content)
+        
+        # Extract text from PDF
+        page_texts, total_pages = extract_text_with_page_info_from_pdf(pdf_buffer)
         if not page_texts:
             raise ValueError("PDF에서 텍스트를 추출하지 못했습니다.")
 
+        print(f"PDF 텍스트 추출 완료: 총 {total_pages}페이지")
+        
         toc_raw_text = get_toc_raw_text_from_page_list(page_texts, toc_page_numbers=[2, 3]) # 예시 목차 페이지
 
         parsed_toc = None
@@ -37,30 +53,52 @@ def run_as_is_analysis_background(pdf_path: str, report_filename: str):
             target_sections = [TargetSection(title='전체 문서', start_page=1, end_page=total_pages)]
 
         if not target_sections: # 이 경우는 get_target_sections_service가 빈 리스트를 반환했을 때 (예: 후보는 있지만 최종 타겟이 없을때)
-             target_sections = [TargetSection(title='전체 문서 (대상 섹션 식별 실패)', start_page=1, end_page=total_pages)]
+            target_sections = [TargetSection(title='전체 문서 (대상 섹션 식별 실패)', start_page=1, end_page=total_pages)]
 
-
-        as_is_report_content = generate_as_is_report_service(
+        # 마크다운 형식
+        markdown_content = generate_as_is_report_service(
             page_texts_list=page_texts,
             total_pages=total_pages,
             target_sections=target_sections
         )
 
-        output_report_path = os.path.join(OUTPUT_ASIS_DIR, report_filename)
-        with open(output_report_path, "w", encoding="utf-8") as f:
-            f.write(as_is_report_content)
-
-        print(f"As-Is 보고서 생성 완료: {output_report_path}")
+        # Convert markdown to HTML
+        html_content = markdown.markdown(markdown_content)
+        
+        # Create PDF using ReportLab
+        output_buffer = BytesIO()
+        doc = SimpleDocTemplate(output_buffer, pagesize=letter)
+        styles = getSampleStyleSheet()
+        
+        # Create custom style for better readability with Korean font
+        custom_style = ParagraphStyle(
+            'CustomStyle',
+            parent=styles['Normal'],
+            fontName='NanumGothic',
+            fontSize=11,
+            leading=14,
+            alignment=TA_JUSTIFY,
+            spaceBefore=6,
+            spaceAfter=6
+        )
+        
+        # Convert HTML content to paragraphs
+        story = []
+        for line in html_content.split('\n'):
+            if line.strip():
+                # Remove HTML tags for simplicity
+                clean_text = line.replace('<p>', '').replace('</p>', '')
+                p = Paragraph(clean_text, custom_style)
+                story.append(p)
+                story.append(Spacer(1, 6))
+        
+        # Build PDF
+        doc.build(story)
+        output_buffer.seek(0)
+        
+        return output_buffer.getvalue()
 
     except Exception as e:
         print(f"As-Is 분석 백그라운드 작업 중 오류: {e}")
         traceback.print_exc()
-        # (선택) 에러 상태를 파일이나 DB에 기록
-    finally:
-        # 임시 PDF 파일 삭제
-        if os.path.exists(pdf_path):
-            try:
-                os.remove(pdf_path)
-                print(f"임시 PDF 파일 삭제: {pdf_path}")
-            except Exception as e_del:
-                print(f"임시 PDF 파일 삭제 오류: {e_del}")
+        raise HTTPException(status_code=500, detail=str(e))
