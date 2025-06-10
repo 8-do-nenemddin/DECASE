@@ -1,35 +1,60 @@
 import os
-
-from fastapi import APIRouter, UploadFile, File, Form, BackgroundTasks, HTTPException
+import io
+import zipfile
+from typing import List
+from fastapi import APIRouter, HTTPException
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
 from app.services.mockup_service import run_mockup_generation_pipeline
-from app.schemas.mockup import MockupResponse
-from app.core.config import (
-    INPUT_DIR
-)
+from urllib.parse import quote
 
 router = APIRouter()
 
-@router.post("/generate-mockup", response_model=MockupResponse)
+class RequirementItem(BaseModel):
+    description_name: str
+    type: str
+    description_content: str
+    target_task: str
+    rfp_page: int
+    processing_detail: str
+    category_large: str
+    category_medium: str
+    category_small: str
+    difficulty: str
+    importance: str
+
+@router.post("/generate-mockup")
 async def generate_mockup_endpoint(
-    background_tasks: BackgroundTasks,
-    input_file: UploadFile = File(...),
-    output_folder_name: str = Form(None),
+    requirements: List[RequirementItem],
+    output_folder_name: str = None,
 ):
-    if not input_file.filename.endswith(".json"):
-        raise HTTPException(status_code=400, detail="잘못된 파일 형식입니다. JSON 파일을 업로드해주세요.")
-
-    # 입력 파일 저장
-    input_file_path = os.path.join(INPUT_DIR, f"input_{input_file.filename}")
     try:
-        with open(input_file_path, "wb") as buffer:
-            buffer.write(await input_file.read())
-        print(f"입력 파일 임시 저장: {input_file_path}")
+        # 요구사항 데이터를 JSON 문자열로 변환 (UTF-8 인코딩 사용)
+        import json
+        input_data = json.dumps([req.dict() for req in requirements], ensure_ascii=False, indent=2)
+        
+        # 목업 생성 및 zip 파일 생성
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+            # 목업 생성 파이프라인 실행 및 결과를 zip에 추가
+            mockup_files = run_mockup_generation_pipeline(input_data, output_folder_name)
+            for file_path, file_content in mockup_files:
+                # 파일 내용을 UTF-8로 인코딩하여 zip에 추가
+                zip_file.writestr(file_path, file_content.encode('utf-8'))
+        
+        zip_buffer.seek(0)
+        
+        # 파일명 생성 및 인코딩
+        filename = f"mockup_{output_folder_name or 'result'}.zip"
+        encoded_filename = quote(filename.encode('utf-8'))
+        
+        # StreamingResponse로 zip 파일 반환
+        return StreamingResponse(
+            zip_buffer,
+            media_type="application/zip",
+            headers={
+                "Content-Disposition": f"attachment; filename*=UTF-8''{encoded_filename}"
+            }
+        )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"입력 파일 저장 실패: {str(e)}")
-    
-    background_tasks.add_task(run_mockup_generation_pipeline, input_file_path, output_folder_name)
-
-    return MockupResponse(
-        message="목업 생성 요청이 접수되었습니다. 백그라운드에서 처리가 시작됩니다.",
-        folder_name=output_folder_name or "자동생성됨"
-    )
+        raise HTTPException(status_code=500, detail=f"목업 생성 실패: {str(e)}")
