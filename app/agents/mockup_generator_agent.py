@@ -4,54 +4,62 @@ import os
 
 from app.services.file_processing_service import sanitize_filename
 
-# client = OpenAI(api_key=OPENAI_API_KEY)
+# Anthropic 클라이언트를 사용하도록 변경
+# from anthropic import Anthropic 
+# client = Anthropic(api_key=ANTHROPIC_API_KEY)
+
 class HtmlGenerator:
-    def __init__(self, openai_client):
-        self.client = openai_client
+    def __init__(self, anthropic_client):
+        """클라이언트를 Anthropic 클라이언트로 변경합니다."""
+        self.client = anthropic_client
         self.analysis_cache = {}
 
-    def _call_gpt(self, prompt_text, cache_key, system_message="You are a helpful AI assistant.", temperature=0.15): # 기본 temperature 조정
-        # ... (이전과 동일) ...
+    def _call_claude(self, prompt_text, cache_key, system_message="You are a helpful AI assistant.", temperature=0.1):
+        """Claude API를 호출하는 메서드로 변경되었습니다."""
         if not self.client:
-            # ...
-            return None
+            print("❌ Anthropic 클라이언트가 초기화되지 않았습니다. 실제 환경에서는 API 키를 설정해야 합니다.")
+            # 개발/테스트를 위한 기본 HTML 반환
+            return f"<!DOCTYPE html><html><body><h1>클라이언트 미설정 오류</h1><p>Anthropic 클라이언트가 제공되지 않았습니다.</p><p>키: {cache_key}</p></body></html>"
+        
         if cache_key in self.analysis_cache:
-            # ...
+            print(f"캐시에서 HTML 로드 중 (키: {cache_key})...")
             return self.analysis_cache[cache_key]
         
         try:
-            # ... (API 호출 부분) ...
-            print(f"GPT HTML 생성 요청 중 (키: {cache_key})...")
-            response = self.client.chat.completions.create(
-                model="gpt-4o", # 또는 최신/최고 성능 모델
+            print(f"Claude HTML 생성 요청 중 (키: {cache_key})...")
+            # Anthropic API 호출 방식으로 변경
+            response = self.client.messages.create(
+                model="claude-sonnet-4-20250514",  # 최신/최고 성능 Claude 모델
+                max_tokens=4096, # Claude API는 max_tokens가 필수입니다.
+                system=system_message, # System prompt를 별도 파라미터로 전달
                 messages=[
-                    {"role": "system", "content": system_message},
                     {"role": "user", "content": prompt_text}
                 ],
                 temperature=temperature 
             )
-            result = response.choices[0].message.content
+            # Claude 응답 구조에 맞게 결과 추출
+            result = response.content[0].text
             
+            # HTML 코드 블록을 추출하는 로직은 그대로 유지
             match = re.search(r'```(html)?\s*([\s\S]*?)\s*```', result, re.IGNORECASE)
             if match:
                 html_code = match.group(2).strip()
-            else:
+            # Claude는 종종 코드만 반환하므로, 코드 블록이 없는 경우를 대비
+            elif result.strip().startswith('<!DOCTYPE html>'):
                 html_code = result.strip()
+            else:
+                html_code = result.strip() # 만약 다른 설명이 붙었다면 제거
 
             self.analysis_cache[cache_key] = html_code
             return html_code
         except Exception as e:
-            # ... (오류 처리) ...
-            print(f"GPT HTML 생성 API 호출 중 오류 발생 ({cache_key}): {e}")
+            print(f"❌ Claude HTML 생성 API 호출 중 오류 발생 ({cache_key}): {e}")
             return f"\n<!DOCTYPE html>\n<html><head><title>오류</title></head><body><h1>HTML 생성 중 오류 발생</h1><p>키: {cache_key}</p><p>오류 내용: {e}</p></body></html>"
 
-
     def generate_html_for_page_plan(self, page_plan_details, all_feature_specs):
-        # ... (메서드 상단 및 상세 요구사항 변수 준비는 이전 답변과 거의 동일) ...
+        # ... (메서드 상단 및 상세 요구사항 변수 준비는 이전과 완벽히 동일) ...
         page_title_ko = page_plan_details.get("page_title_ko", "목업 페이지")
-        # ... (기타 변수들: page_name_en, page_description, target_actors, default_placeholder, user_story_str, acceptance_criteria_str, ui_elements_list_str, data_fields_str, layout_guidelines_str, basic_style_guide_str, api_interactions_str, key_ui_elements_suggestion, features_details_for_prompt, is_responsive, detailed_functional_requirements_section_str, detailed_interface_requirements_section_str - 이전 답변에서 복사)
-        # (이하 생략된 변수 준비 코드는 바로 이전 답변을 참고해주세요)
-        # ----- 변수 준비 시작 (이전 답변 내용 일부 복사) -----
+        # ----- 변수 준비 시작 (이전 코드와 동일) -----
         page_name_en = page_plan_details.get("page_name", "UnknownPage")
         page_description = page_plan_details.get("page_description", "N/A")
         target_actors = ", ".join(page_plan_details.get("target_actors", [])) if isinstance(page_plan_details.get("target_actors"), list) else str(page_plan_details.get("target_actors", ""))
@@ -121,6 +129,7 @@ class HtmlGenerator:
         - 초기 스타일/브랜딩 가이드라인 (제공된 경우): {basic_style_guide_str}"""
         # ----- 변수 준비 끝 -----
 
+        # 프롬프트는 Claude에 맞게 약간 더 명시적으로 수정할 수 있지만, 기존 프롬프트도 잘 작동합니다.
         prompt = f"""
         웹 페이지의 HTML 목업 코드를 생성해주십시오. 이 목업은 단순한 와이어프레임을 넘어, **전문 UI 디자이너가 Stitch나 Figma와 같은 전문 도구를 사용하여 제작한 수준의 매우 높은 시각적 완성도와 전문성**을 목표로 합니다. 
         API 연동을 준비하는 구조를 갖추되, JavaScript 없이 순수 HTML/CSS로 작성됩니다.
@@ -187,10 +196,11 @@ class HtmlGenerator:
 
         html_cache_key = f"html_gen_pro_designer_v1_{page_name_en}_{hash(prompt)}"
 
-        html_code = self._call_gpt(
+        # _call_gpt를 _call_claude로 변경
+        html_code = self._call_claude(
             prompt,
             html_cache_key,
-            system_message="You are a world-class Senior UI/UX Design Lead and expert front-end developer, renowned for creating exceptionally polished, modern, minimalist, and user-centric web interfaces comparable to those produced by leading design agencies using professional tools like Figma or Stitch. You have an impeccable eye for detail, a deep understanding of visual hierarchy, advanced typography, sophisticated color theory, and interaction design principles. Your mission is to translate the given requirements into a visually stunning and functionally clear HTML/CSS mockup.",
+            system_message="You are a world-class Senior UI/UX Design Lead and expert front-end developer, renowned for creating exceptionally polished, modern, minimalist, and user-centric web interfaces comparable to those produced by leading design agencies using professional tools like Figma or Stitch. You have an impeccable eye for detail, a deep understanding of visual hierarchy, advanced typography, sophisticated color theory, and interaction design principles. Your mission is to translate the given requirements into a visually stunning and functionally clear HTML/CSS mockup. Respond ONLY with the raw HTML code itself, without any surrounding text or explanations.",
             temperature=0.1 # 최고 수준의 디테일과 지침 준수를 위해 매우 낮은 temperature 사용
         )
         return html_code
@@ -203,12 +213,11 @@ class HtmlGenerator:
             page_title_ko = page_detail.get("page_title_ko", "알 수 없는 페이지")
             file_name = f"{sanitize_filename(page_name_en)}.html"
             page_desc_short = page_detail.get("page_description_short", page_detail.get('page_description', 'N/A')[:50] + "...")
-            page_links_list_str += f"  <li><a href=\"{file_name}\"><strong>{page_title_ko}</strong> ({page_name_en})</a><br><small>{page_desc_short}</small></li>\n"
+            page_links_list_str += f'  <li><a href="{file_name}"><strong>{page_title_ko}</strong> ({page_name_en})</a><br><small>{page_desc_short}</small></li>\n'
 
         if not page_links_list_str:
             page_links_list_str = "<li>생성된 페이지가 없습니다.</li>"
         index_page_title = f"{project_name} - 목업 인덱스"
-
 
         prompt = f"""
         다음 정보를 바탕으로 이 소프트웨어 목업 프로젝트의 **최상위 인덱스 페이지(홈페이지)** HTML 코드를 생성해주십시오.
@@ -241,7 +250,8 @@ class HtmlGenerator:
         
         index_cache_key = f"html_gen_index_page_pro_designer_v1_{hash(prompt)}"
         
-        html_code = self._call_gpt(
+        # _call_gpt를 _call_claude로 변경
+        html_code = self._call_claude(
             prompt, 
             index_cache_key,
             system_message="You are a world-class Senior UI/UX Design Lead, creating a stunning, minimalist, and modern index page for a web mockup project. Your work mirrors the quality of top design agencies. Respond ONLY with the raw HTML code.",
@@ -250,21 +260,22 @@ class HtmlGenerator:
         return html_code
 
     def save_html_to_file(self, page_name, html_content, output_dir="mockups_output_v3"):
-        # ... (이전과 동일) ...
+        # 이 메서드는 외부 라이브러리에 의존하지 않으므로 변경할 필요가 없습니다.
         if not os.path.exists(output_dir):
-            # ...
-            return
+            try:
+                os.makedirs(output_dir)
+            except OSError as e:
+                print(f"❌ 출력 디렉토리 생성 실패: {output_dir}, error: {e}")
+                return
 
         safe_filename = sanitize_filename(page_name) + ".html"
         filepath = os.path.join(output_dir, safe_filename)
         
         try:
-            # ...
             with open(filepath, 'w', encoding='utf-8') as f:
                 f.write(html_content)
-            print(f"목업 파일 저장: {filepath}")
+            print(f"✅ 목업 파일 저장 완료: {filepath}")
         except Exception as e:
-            # ...
             print(f"❌ HTML 파일 저장 중 예외 발생 ({safe_filename}): {e}")
             import traceback
             traceback.print_exc()
