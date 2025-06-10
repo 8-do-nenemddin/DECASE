@@ -66,6 +66,7 @@ fastapi = "^0.115.12"
 uvicorn = {extras = ["standard"], version = "^0.34.2"}
 anthropic = "^0.52.2"
 sentence-transformers = "^4.1.0"
+reportlab = "^4.4.1"
 
 [build-system]
 requires = ["poetry-core"]

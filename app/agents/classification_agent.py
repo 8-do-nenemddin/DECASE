@@ -1,16 +1,26 @@
-# app/services/classification_service.py
+import json
 from openai import OpenAI
 from typing import Dict
 from app.core.config import OPENAI_API_KEY, LLM_MODEL
 
+# 모듈 레벨에서 클라이언트 인스턴스 생성
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-def generate_classification_prompt_text(description_name: str, description_content: str, target_task: str) -> str:
+
+def generate_classification_only_prompt(description_name: str, description_content: str, target_task: str) -> str:
+    """
+    요구사항 분류(대/중/소)를 위한 LLM 프롬프트를 생성합니다.
+    """
     return f"""
-당신은 공공 및 민간 부문 정보시스템 구축 프로젝트에서 요구사항을 분석하고, 다음 기준에 따라 대분류, 중분류, 소분류를 분류하는 전문가입니다.
+당신은 요구사항을 분석하고, 지정된 규칙에 따라 구조화된 JSON 데이터를 생성하는 매우 정확하고 체계적인 시스템 분석 전문가입니다.
 
-요구사항 설명을 읽고, 각 요구사항이 어떤 업무 기능 또는 시스템 영역에 속하는지 **계층적으로 분류**해 주세요.
+**수행할 작업:**
+주어진 요구사항 정보를 바탕으로 다음 규칙과思考 과정을 거쳐 최종 JSON 객체를 생성해야 합니다.
 
+1.  **한글 분류**: 요구사항 내용을 분석하여 [분류 기준]과 [소분류 결정 심화 지침]에 따라 '대분류', '중분류', '소분류'를 한글로 결정합니다.
+2.  **최종 JSON 출력**: 결정된 한글 분류명들을 지정된 JSON 형식에 맞춰 최종적으로 반환합니다.
+
+**분석할 요구사항 정보:**
 [요구사항 명]
 {description_name}
 
@@ -20,59 +30,63 @@ def generate_classification_prompt_text(description_name: str, description_conte
 [대상업무]
 {target_task}
 
-[분류 기준]
-1. **대분류**: 서비스 또는 시스템 영역 수준에서의 가장 큰 범주입니다. 주요 업무 또는 시스템 모듈 수준을 대표하는 범주입니다.
-   예시: 기업뱅킹, 사용자관리, 콘텐츠관리, 데이터분석, 외부연계, 시스템운영 등
+**[분류 기준]**
+1.  **대분류**: 서비스 또는 시스템 영역 수준의 가장 큰 범주. (예: 기업뱅킹, 사용자관리, 콘텐츠관리)
+2.  **중분류**: 대분류 하위의 단위 시스템 또는 기능 영역. (예: 회원가입, 콘텐츠 업로드, 자동이체)
+3.  **소분류**: 중분류 기능을 구성하는 가장 작은 단위의 기능. (상세 내용은 아래 심화 지침 참조)
 
-2. **중분류**: 대분류 하위의 단위 시스템 또는 기능 영역입니다.
-   예시: 회원가입, 콘텐츠 업로드, 자동이체, 통계 대시보드, API 관리, 접근제어 등
+**[소분류 결정 심화 지침]**
+이것은 가장 중요한 규칙입니다. 반드시 따르십시오.
 
-3. **소분류**: 기능 세부 수준으로, 화면 또는 단일 기능 단위와 1:1로 매핑됩니다.
-   예시: 이메일 인증 처리, 자동이체 해제, 게시판 댓글 등록, 월간 방문자 수 집계 등
+1.  **기능(Function)의 정의**: 소분류는 반드시 '명사'가 아닌 '동사' 중심의 명확한 **동작(Action) 또는 프로세스**여야 합니다.
+    - **좋은 예시**: `아이디 중복 확인`, `약관 동의 처리`, `본인 인증 요청`, `가입 정보 유효성 검사`
+    - **나쁜 예시**: `이메일, 비밀번호 입력`, `사용자 정보`, `가입 화면` (이것들은 기능이 아니라 데이터 항목 또는 UI 설명임)
 
-[출력 형식]
-대분류: <텍스트>
-중분류: <텍스트>
-소분류: <텍스트 또는 '해당 없음'>
+2.  **계층 구조의 원칙**: 소분류는 항상 중분류의 하위 단계여야 합니다.
+    - 만약, [상세 설명]의 내용이 '중분류'로 정의된 기능 전체를 포괄적으로 설명하고 있으며, 그 안에서 더 작은 단위의 기능으로 나눌 수 없다면, 소분류는 **반드시 "해당 없음"**으로 지정해야 합니다.
+    - 예를 들어, 중분류가 '회원가입'인데 상세 설명이 "사용자가 이메일, 비밀번호로 가입한다" 라면, 이는 '회원가입' 기능 자체를 설명하는 것이므로 소분류는 "해당 없음"입니다.
 
-[작성 지침]
-- 반드시 **대분류 → 중분류 → 소분류** 순서로 작성하세요.
-- 각 분류명은 **명확하고 직관적인 명사형 표현**으로 작성하세요.
-- 설명은 생략하고, 지정된 출력 형식만 제공하세요.
-- 기존 표준 체계가 없더라도 **요구사항의 의미와 맥락에 따라 논리적으로 계층화**해 주세요.
-- 소분류는 해당하는 하위 기능이 없거나 불분명한 경우 "해당 없음"으로 작성하세요.
-- 띄어쓰기와 문장 부호에 주의하여, **명확하고 일관된 표현**을 사용하세요.
+3.  **데이터 필드 나열 금지**: [상세 설명]에 언급된 데이터 필드(예: 이름, 이메일, 주소)를 **절대로 그대로 나열하지 마십시오.** 그것은 기능이 아닙니다.
+
+**[최종 출력 형식]**
+思考 과정은 응답에 포함하지 말고, 반드시 아래 키를 가진 최종 JSON 객체만 반환해야 합니다. 다른 어떤 설명도 추가하지 마십시오.
+{{
+  "category_large": "<결정된 한글 대분류>",
+  "category_medium": "<결정된 한글 중분류>",
+  "category_small": "<결정된 한글 소분류 또는 '해당 없음'>"
+}}
 """
 
 def classify_requirement_agent(description_name: str, description_content: str, target_task: str) -> Dict[str, str]:
-    prompt = generate_classification_prompt_text(description_name, description_content, target_task)
+    """
+    LLM을 통해 요구사항을 대/중/소 카테고리로 분류합니다.
+    """
+    classification_prompt = generate_classification_only_prompt(description_name, description_content, target_task)
+    
     try:
         response = client.chat.completions.create(
             model=LLM_MODEL,
+            response_format={"type": "json_object"},
             messages=[
-                {"role": "system", "content": "당신은 소프트웨어 분석 및 분류 전문가입니다."},
-                {"role": "user", "content": prompt}
+                {"role": "system", "content": "You are a highly structured system analyst. Your output must be a single, valid JSON object as specified."},
+                {"role": "user", "content": classification_prompt}
             ],
-            temperature=0.3
+            temperature=0.2
         )
-        content = response.choices[0].message.content or ""
-        lines = [line.strip() for line in content.splitlines() if ":" in line]
-
-        def extract_value(prefix):
-            for line in lines:
-                if line.startswith(prefix):
-                    parts = line.split(":", 1)
-                    if len(parts) == 2:
-                        return parts[1].strip()
-            return "미분류"
-
-        return {
-            "category_large": extract_value("대분류"),
-            "category_medium": extract_value("중분류"),
-            "category_small": extract_value("소분류"),
+        
+        classification_result = json.loads(response.choices[0].message.content or "{}")
+        
+        # 최종 결과 조합
+        final_result = {
+            "category_large": classification_result.get("category_large", "미분류"),
+            "category_medium": classification_result.get("category_medium", "미분류"),
+            "category_small": classification_result.get("category_small", "해당 없음"),
         }
+        return final_result
+
     except Exception as e:
-        print(f"Error in classify_requirement_agent: {e}")
+        print(f"classify_requirement_agent에서 오류 발생: {e}")
+        # 오류 발생 시, ID 관련 키 없이 분류 필드만 에러로 반환
         return {
             "category_large": "Error",
             "category_medium": "Error",
