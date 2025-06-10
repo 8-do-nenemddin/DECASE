@@ -287,7 +287,7 @@ class HtmlGenerator:
         
         try:
             response = self.client.messages.create(
-                model="claude-3-opus-20240229",
+                model="claude-sonnet-4-20250514",
                 max_tokens=4000,
                 temperature=0.1,
                 system="You are a world-class UI/UX designer creating a stunning, minimalist, and modern web page. Respond ONLY with the raw HTML code.",
