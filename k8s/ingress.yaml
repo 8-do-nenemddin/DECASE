@@ -13,30 +13,30 @@ spec:
       paths:
       - backend:
           service:
-            name: decase-ai
+            name: decase
             port:
               number: 8080
         path: /api
         pathType: Prefix
       - backend:
           service:
-            name: decase-ai
+            name: decase
             port:
-              number: 8081
+              number: 8080
         path: /actuator
         pathType: Prefix
       - backend:
           service:
             name: decase-ai
             port:
-              number: 8080
+              number: 8001
         path: /docs
         pathType: Prefix
       - backend:
           service:
-            name: decase-ai
+            name: decase-fe
             port:
-              number: 8080
+              number: 80
         path: /
         pathType: Prefix
   tls:
