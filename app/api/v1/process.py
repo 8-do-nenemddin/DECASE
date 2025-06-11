@@ -4,6 +4,7 @@ import uuid
 from typing import List, Dict, Any
 from fastapi import APIRouter, HTTPException, UploadFile, File, BackgroundTasks
 from fastapi.concurrency import run_in_threadpool
+from concurrent.futures import ThreadPoolExecutor
 from app.schemas.requirement import ProcessResponse
 from app.graph.rfp_graph import get_rfp_graph_app
 from app.services.background_processing_service import process_requirements_in_memory
@@ -16,6 +17,9 @@ from app.api.v1.jobs import job_store, update_job_status
 
 router = APIRouter()
 compiled_app = get_rfp_graph_app()
+
+# 전역 스레드 풀 생성
+thread_pool = ThreadPoolExecutor(max_workers=4)
 
 os.makedirs(INPUT_DIR, exist_ok=True)
 
@@ -70,7 +74,7 @@ async def get_srs_status(job_id: str):
         "requirements": job.get("result", []) if job["status"] == "COMPLETED" else []
     }
 
-async def process_srs_background(pdf_content: bytes, job_id: str, original_filename: str):
+def process_srs_background(pdf_content: bytes, job_id: str, original_filename: str):
     """백그라운드에서 요구사항 분석 처리"""
     try:
         # 임시 파일 저장
