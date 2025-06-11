@@ -1,4 +1,4 @@
-from app.services.llm_call_service import call_llm
+from app.services.llm_call_service import call_gpt
 from typing import Dict, Any, Optional
 
 # === 5. 에이전트 2: 요구사항 명명, 분류 및 상세 설명 추가 ===
@@ -46,7 +46,7 @@ def name_classify_describe_requirements_agent(
     원본 청크: "{source_chunk_text}"
     페이지 번호: {page_number}
     """
-    result_json = call_llm(system_prompt, user_prompt, is_json_output=True)
+    result_json = call_gpt(system_prompt, user_prompt, is_json_output=True)
 
     # 결과 검증 시 새로운 필드 목록 확인
     expected_keys = ["요구사항명", "type", "요구사항 상세설명", "대상업무", "요건처리 상세", "RFP", "출처 문장"]
