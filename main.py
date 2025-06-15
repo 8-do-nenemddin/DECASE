@@ -16,7 +16,7 @@ app = FastAPI(
     version="0.1.0"
 )
 
-# /api/v1 접두사와 함께 process 라우터 포함
+# /ai/api/v1 접두사와 함께 process 라우터 포함
 app.include_router(srs_router.router, prefix="/ai/api/v1/requirements", tags=["SRS"])
 app.include_router(refine_router.router, prefix="/ai/api/v1/requirements", tags=["/SRS"]) 
 app.include_router(asis_router.router, prefix="/ai/api/v1/requirements", tags=["As-Is"]) 
