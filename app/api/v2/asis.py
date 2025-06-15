@@ -7,7 +7,6 @@ from io import BytesIO
 from app.services.background_asis_services import run_as_is_analysis
 from app.api.v2.jobs import job_store, update_job_status
 from app.database import SessionLocal
-from app.models.pdf_storage import PDFStorage
 
 router = APIRouter()
 
