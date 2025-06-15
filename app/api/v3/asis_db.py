@@ -2,14 +2,10 @@ import os
 import uuid
 import asyncio
 from fastapi import APIRouter, UploadFile, File, HTTPException, Form
-from fastapi.responses import StreamingResponse
-from io import BytesIO
 from pathlib import Path
 from datetime import datetime
 from app.models.document import Document
-from app.models.project import Project
-from app.models.member import Member
-from app.repositories.document_repository import document_repository, DocumentRepository
+from app.repositories.document_repository import DocumentRepository
 from app.core.mysql_config import get_mysql_db
 
 from app.services.background_asis_services import run_as_is_analysis
@@ -32,12 +28,6 @@ async def start_as_is_analysis(
     try:
         # Job ID 생성
         job_id = str(uuid.uuid4())
-        print(f"\n=== 새로운 As-Is 작업 시작 ===")
-        print(f"Job ID: {job_id}")
-        print(f"파일명: {file.filename}")
-        print(f"Project ID: {project_id}")
-        print(f"Member ID: {member_id}")
-        print(f"Document ID: {document_id}")
         
         # 파일 내용 읽기
         pdf_content = await file.read()

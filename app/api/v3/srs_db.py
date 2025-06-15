@@ -22,6 +22,7 @@ from app.models import Document, Member, Project
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
+from app.repositories.document_repository import DocumentRepository
 
 router = APIRouter()
 compiled_app = get_rfp_graph_app()
@@ -47,12 +48,6 @@ async def start_srs_analysis(
     try:
         # Job ID 생성
         job_id = str(uuid.uuid4())
-        print(f"\n=== 새로운 작업 시작 ===")
-        print(f"Job ID: {job_id}")
-        print(f"파일명: {file.filename}")
-        print(f"Project ID: {project_id}")
-        print(f"Member ID: {member_id}")
-        print(f"Document ID: {document_id}")
         
         # 파일 내용 읽기
         pdf_content = await file.read()
@@ -190,71 +185,7 @@ async def process_srs_background(pdf_content: bytes, job_id: str, original_filen
             
             # DB에 요구사항 저장
             print("\n=== 요구사항 저장 프로세스 시작 ===")
-            async for db in get_mysql_db():
-                print(f"DB 연결 성공")
-                
-                job_info = job_store[job_id]
-                print(f"Job 정보: {job_info}")
-                
-                project_id = job_info.get("project_id")
-                member_id = job_info.get("member_id")
-                document_id = job_info.get("document_id")
-                print(f"ID 정보 - Project: {project_id}, Member: {member_id}, Document: {document_id}")
-                
-                if not all([project_id, member_id, document_id]):
-                    print("ERROR: 필수 ID 누락")
-                    raise Exception("프로젝트 ID, 멤버 ID, 문서 ID가 필요합니다.")
-                
-                # 관련 엔티티 조회
-                project_query = select(Project).where(Project.project_id == project_id)
-                member_query = select(Member).where(Member.member_id == member_id)
-                document_query = select(Document).where(Document.doc_id == document_id)
-                
-                print(f"\n문서 ID 조회: {document_id}")
-                print(f"문서 쿼리: {document_query}")
-                
-                project_result = await db.execute(project_query)
-                member_result = await db.execute(member_query)
-                document_result = await db.execute(document_query)
-                
-                project = project_result.scalar_one_or_none()
-                member = member_result.scalar_one_or_none()
-                document = document_result.scalar_one_or_none()
-                
-                print(f"엔티티 조회 결과 - Project: {project is not None}, Member: {member is not None}, Document: {document is not None}")
-                if document is None:
-                    print(f"문서를 찾을 수 없습니다. document_id: {document_id}")
-                
-                if not all([project, member, document]):
-                    print("ERROR: 엔티티 조회 실패")
-                    raise Exception("프로젝트, 멤버, 또는 문서를 찾을 수 없습니다.")
-                
-                # RequirementService를 사용하여 요구사항 저장
-                print("\n=== 요구사항 저장 시작 ===")
-                requirement_service = RequirementService(db)
-                
-                # 요구사항을 순차적으로 저장
-                for idx, requirement in enumerate(processed_results, 1):
-                    print(f"\n요구사항 {idx}/{len(processed_results)} 저장 시도:")
-                    print(f"요구사항 데이터: {requirement}")
-                    try:
-                        await requirement_service.create_requirement(requirement, member, project, document)
-                        print(f"요구사항 {idx} 저장 성공")
-                    except Exception as e:
-                        print(f"ERROR: 요구사항 {idx} 저장 실패 - {str(e)}")
-                        raise
-                
-                print("\n=== 모든 요구사항 저장 완료 ===")
-                break
-            
-            # 작업 완료 상태 업데이트
-            update_job_status(
-                job_id=job_id,
-                status="COMPLETED",
-                result=processed_results,
-                error=None
-            )
-            print("작업 상태 업데이트 완료")
+            await save_requirements_to_db(processed_results, job_store[job_id])
             
         finally:
             # 임시 파일 정리
@@ -277,24 +208,59 @@ async def process_srs_background(pdf_content: bytes, job_id: str, original_filen
             error=error_message
         )
 
-class DocumentRepository:
-    def __init__(self, db: AsyncSession):
-        self.db = db
+async def save_requirements_to_db(processed_results, job_info):
+    """
+    요구사항 리스트를 DB에 저장하는 함수
+    """
+    async for db in get_mysql_db():
+        print(f"DB 연결 성공")
+        project_id = job_info.get("project_id")
+        member_id = job_info.get("member_id")
+        document_id = job_info.get("document_id")
 
-    async def save(self, document: Document) -> Document:
-        self.db.add(document)
-        await self.db.commit()
-        await self.db.refresh(document)
-        return document
+        print(f"ID 정보 - Project: {project_id}, Member: {member_id}, Document: {document_id}")
 
-    async def find_latest_doc_id_by_prefix(self, prefix: str) -> str:
-        query = text("""
-            SELECT doc_id 
-            FROM TM_DOCUMENTS 
-            WHERE doc_id LIKE :prefix || '-%' 
-            ORDER BY doc_id DESC 
-            LIMIT 1
-        """)
-        result = await self.db.execute(query, {"prefix": prefix})
-        doc_id = result.scalar()
-        return doc_id if doc_id else None
+        if not all([project_id, member_id, document_id]):
+            print("ERROR: 필수 ID 누락")
+            raise Exception("프로젝트 ID, 멤버 ID, 문서 ID가 필요합니다.")
+        
+        # 관련 엔티티 조회
+        project_query = select(Project).where(Project.project_id == project_id)
+        member_query = select(Member).where(Member.member_id == member_id)
+        document_query = select(Document).where(Document.doc_id == document_id)
+
+        print(f"\n문서 ID 조회: {document_id}")
+        print(f"문서 쿼리: {document_query}")
+
+        project_result = await db.execute(project_query)
+        member_result = await db.execute(member_query)
+        document_result = await db.execute(document_query)
+
+        project = project_result.scalar_one_or_none()
+        member = member_result.scalar_one_or_none()
+        document = document_result.scalar_one_or_none()
+
+        print(f"엔티티 조회 결과 - Project: {project is not None}, Member: {member is not None}, Document: {document is not None}")
+        
+        if document is None:
+            print(f"문서를 찾을 수 없습니다. document_id: {document_id}")
+        
+        if not all([project, member, document]):
+            print("ERROR: 엔티티 조회 실패")
+            raise Exception("프로젝트, 멤버, 또는 문서를 찾을 수 없습니다.")
+        
+        # RequirementService를 사용하여 요구사항 저장
+        print("\n=== 요구사항 저장 시작 ===")
+        requirement_service = RequirementService(db)
+        # 요구사항을 순차적으로 저장
+        for idx, requirement in enumerate(processed_results, 1):
+            print(f"\n요구사항 {idx}/{len(processed_results)} 저장 시도:")
+            print(f"요구사항 데이터: {requirement}")
+            try:
+                await requirement_service.create_requirement(requirement, member, project, document)
+                print(f"요구사항 {idx} 저장 성공")
+            except Exception as e:
+                print(f"ERROR: 요구사항 {idx} 저장 실패 - {str(e)}")
+                raise
+        print("\n=== 모든 요구사항 저장 완료 ===")
+        break
