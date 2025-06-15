@@ -13,7 +13,7 @@ from app.agents.requirements_extract_agent import extract_requirement_sentences_
 from app.agents.requirements_refine_agent import name_classify_describe_requirements_agent
 from app.services.file_processing_service import extract_pages_as_documents, create_chunks_from_documents
 from app.core.config import INPUT_DIR, OUTPUT_JSON_DIR, CHUNK_SIZE, CHUNK_OVERLAP
-from app.api.v1.jobs import job_store, update_job_status
+from app.api.v2.jobs import job_store, update_job_status
 
 router = APIRouter()
 compiled_app = get_rfp_graph_app()
@@ -22,6 +22,8 @@ compiled_app = get_rfp_graph_app()
 thread_pool = ThreadPoolExecutor(max_workers=4)
 
 os.makedirs(INPUT_DIR, exist_ok=True)
+os.makedirs("app/docs", exist_ok=True)
+
 
 @router.post("/srs-agent/start")
 async def start_srs_analysis(
@@ -67,12 +69,22 @@ async def get_srs_status(job_id: str):
     
     job = job_store[job_id]
     
-    return {
+    # Create response data
+    response_data = {
         "job_id": job_id,
         "state": job["status"],
         "message": job.get("message", ""),
         "requirements": job.get("result", []) if job["status"] == "COMPLETED" else []
     }
+    
+    # Save to JSON file
+    output_filename = f"status_{job_id}.json"
+    output_path = os.path.join("app/docs", output_filename)
+    
+    with open(output_path, "w", encoding="utf-8") as json_file:
+        json.dump(response_data, json_file, ensure_ascii=False, indent=4)
+    
+    return response_data
 
 def process_srs_background(pdf_content: bytes, job_id: str, original_filename: str):
     """백그라운드에서 요구사항 분석 처리"""
