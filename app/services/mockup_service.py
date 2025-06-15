@@ -1,74 +1,53 @@
 # app/services/mockup_service.py
 import os
 import json
-from typing import List, Tuple
-from app.core.config import INPUT_DIR, OUTPUT_MOCKUP_DIR
-from app.services.file_processing_service import sanitize_filename
+from typing import List, Tuple, Dict, Any
+
+# 새롭게 리팩토링된 UiMockupAgent를 임포트합니다.
 from app.agents.mockup_agent import UiMockupAgent
 
 def run_mockup_generation_pipeline(
     input_data: str,
-    output_folder_name: str = None
+    output_folder_name: str | None = None
 ) -> List[Tuple[str, str]]:
     """
-    목업 생성 파이프라인을 실행하고 생성된 HTML 파일들의 내용을 반환합니다.
-    
+    요청 데이터를 받아 UiMockupAgent를 실행하고,
+    생성된 HTML 파일들의 (이름, 내용) 리스트를 반환하는 파이프라인입니다.
+
     Args:
-        input_data (str): JSON 형식의 입력 데이터
-        output_folder_name (str, optional): 출력 폴더 이름
-        
+        input_data (str): JSON 형식의 요구사항 명세서 데이터
+        output_folder_name (str, optional): 출력 폴더 이름 (프로젝트 이름으로 활용)
+
     Returns:
         List[Tuple[str, str]]: (파일 경로, 파일 내용) 튜플의 리스트
     """
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
     ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
-    
+
     if not OPENAI_API_KEY or not ANTHROPIC_API_KEY:
         raise ValueError("OpenAI 또는 Anthropic API 키가 설정되지 않았습니다.")
-    
-    # JSON 문자열을 파싱하여 Python 객체로 변환
+
     try:
-        requirements_data = json.loads(input_data)
+        # Pydantic 모델 리스트를 Python 딕셔너리 리스트로 변환
+        requirements_data: List[Dict[str, Any]] = json.loads(input_data)
     except json.JSONDecodeError as e:
         raise ValueError(f"입력 데이터 JSON 파싱 실패: {str(e)}")
-    
+
+    # 1. UiMockupAgent 인스턴스 생성
+    # 생성자에서 모든 분석과 기획이 완료됩니다.
     agent = UiMockupAgent(
-        requirements_data=requirements_data,  # 파싱된 Python 객체 전달
+        requirements_data=requirements_data,
         openai_api_key=OPENAI_API_KEY,
         anthropic_api_key=ANTHROPIC_API_KEY
     )
-    
-    # 목업 생성 및 결과 수집
-    generated_files = []
-    
-    # 각 페이지 생성
-    for page_plan in agent.defined_pages_with_details:
-        page_name = page_plan.get("page_name")
-        if not page_name:
-            continue
-            
-        html_code = agent.generator.generate_html_for_page_plan(page_plan, agent.feature_specs)
-        if html_code and "오류 발생" not in html_code:
-            # 파일 경로에서 한글을 영문으로 변환
-            safe_page_name = sanitize_filename(page_name)
-            file_path = f"{safe_page_name}.html"
-            # HTML 내용을 UTF-8로 인코딩
-            html_content = html_code.encode('utf-8').decode('utf-8')
-            generated_files.append((file_path, html_content))
-    
-    # 메인 페이지 생성
-    if generated_files:
-        main_page_plan = agent.planner.plan_user_main_page()
-        if main_page_plan:
-            project_name = output_folder_name or "Mockup Project"
-            main_page_html = agent.generator.generate_user_main_page_html(
-                main_page_plan=main_page_plan,
-                defined_pages_details=agent.defined_pages_with_details,
-                project_name=project_name
-            )
-            if main_page_html and "오류" not in main_page_html:
-                # 메인 페이지 HTML도 UTF-8로 인코딩
-                main_page_content = main_page_html.encode('utf-8').decode('utf-8')
-                generated_files.append(("index.html", main_page_content))
-    
+
+    # 2. 프로젝트 이름 결정
+    # output_folder_name이 없으면 시스템 개요에서 추정된 이름을 사용할 수 있습니다.
+    # 여기서는 간단하게 기본값을 사용합니다.
+    project_name = output_folder_name or "생성된 목업 프로젝트"
+
+    # 3. 에이전트 실행 및 결과 반환
+    # agent.run() 메서드가 (파일명, HTML 내용) 리스트를 직접 반환합니다.
+    generated_files = agent.run(project_name=project_name)
+
     return generated_files
