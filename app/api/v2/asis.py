@@ -5,9 +5,13 @@ from fastapi.responses import StreamingResponse
 from io import BytesIO
 
 from app.services.background_asis_services import run_as_is_analysis
-from app.api.v1.jobs import job_store, update_job_status
+from app.api.v2.jobs import job_store, update_job_status
+from app.database import SessionLocal
+from app.models.pdf_storage import PDFStorage
 
 router = APIRouter()
+
+INPUT_DIR = "app/docs"
 
 @router.post("/as-is/start")
 async def start_as_is_analysis(
@@ -78,6 +82,12 @@ def process_as_is_background(pdf_content: bytes, job_id: str):
     try:
         # PDF 처리 및 분석
         result_pdf = run_as_is_analysis(pdf_content)
+        
+        # PDF 파일 저장
+        os.makedirs(INPUT_DIR, exist_ok=True)
+        output_path = os.path.join(INPUT_DIR, f"as_is_analysis_{job_id}.pdf")
+        with open(output_path, "wb") as f:
+            f.write(result_pdf)
         
         # 작업 완료 상태 업데이트
         update_job_status(
