@@ -1,12 +1,14 @@
 # app/main.py
 from fastapi import FastAPI
-from app.api.v1 import process as process_router # process.py에서 정의한 라우터 임포트
-from app.api.v1 import asis as asis_router
 from app.api.v1 import description as description_router
 from app.api.v1 import refine as refine_router
 from app.api.v1 import mockup as mockup_router
 from app.api.v1 import faiss as faiss_router
 from app.api.v1 import request as request_router
+from app.api.v3 import asis_job as asis_job_router
+from app.api.v3 import srs_job as srs_job_router
+from app.api.v3 import srs_db as srs_router # process.py에서 정의한 라우터 임포트
+from app.api.v3 import asis_db as asis_router
 
 app = FastAPI(
     title="RFP Analysis Service",
@@ -15,13 +17,15 @@ app = FastAPI(
 )
 
 # /api/v1 접두사와 함께 process 라우터 포함
-app.include_router(process_router.router, prefix="/api/v1/requirements", tags=["RFP"])
-app.include_router(refine_router.router, prefix="/api/v1/requirements", tags=["RFP"]) 
-app.include_router(asis_router.router, prefix="/api/v1/requirements", tags=["As-Is"]) 
+app.include_router(srs_router.router, prefix="/ai/api/v1/requirements", tags=["SRS"])
+app.include_router(refine_router.router, prefix="/ai/api/v1/requirements", tags=["/SRS"]) 
+app.include_router(asis_router.router, prefix="/ai/api/v1/requirements", tags=["As-Is"]) 
 # app.include_router(description_router.router, prefix="/api/v1", tags=["Requirement Description Generation"]) # 신규 라우터 추가
-app.include_router(mockup_router.router, prefix="/api/v1/mockup", tags=["Mockup"]) # 추가
-app.include_router(faiss_router.router, prefix="/api/v1/faiss", tags=["FAISS-Indexing"]) # 새 라우터 추가
-app.include_router(request_router.router, prefix="/api/v1/request", tags=["Update Request"]) # 새 라우터 추가
+app.include_router(mockup_router.router, prefix="/ai/api/v1/mockup", tags=["Mockup"]) # 추가
+app.include_router(faiss_router.router, prefix="/ai/api/v1/faiss", tags=["FAISS-Indexing"]) # 새 라우터 추가
+app.include_router(request_router.router, prefix="/ai/api/v1/request", tags=["Update Request"]) # 새 라우터 추가
+app.include_router(asis_job_router.router, prefix="/ai/api/v1/jobs", tags=["As-Is"])  # AS-IS 분석 작업 상태 확인 라우터
+app.include_router(srs_job_router.router, prefix="/ai/api/v1/jobs", tags=["SRS"])  # SRS 분석 작업 상태 확인 라우터
 
 @app.get("/")
 async def root():
