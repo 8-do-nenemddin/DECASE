@@ -5,9 +5,12 @@ from fastapi.responses import StreamingResponse
 from io import BytesIO
 
 from app.services.background_asis_services import run_as_is_analysis
-from app.api.v1.jobs import job_store, update_job_status
+from app.api.v2.jobs import job_store, update_job_status
+from app.database import SessionLocal
 
 router = APIRouter()
+
+INPUT_DIR = "app/docs"
 
 @router.post("/as-is/start")
 async def start_as_is_analysis(
@@ -79,6 +82,12 @@ def process_as_is_background(pdf_content: bytes, job_id: str):
         # PDF 처리 및 분석
         result_pdf = run_as_is_analysis(pdf_content)
         
+        # PDF 파일 저장
+        os.makedirs(INPUT_DIR, exist_ok=True)
+        output_path = os.path.join(INPUT_DIR, f"as_is_analysis_{job_id}.pdf")
+        with open(output_path, "wb") as f:
+            f.write(result_pdf)
+        
         # 작업 완료 상태 업데이트
         update_job_status(
             job_id=job_id,
@@ -89,21 +98,6 @@ def process_as_is_background(pdf_content: bytes, job_id: str):
         )
         
     except Exception as e:
-<<<<<<<< HEAD:app/api/v1/asis copy.py
-        raise HTTPException(status_code=500, detail=f"PDF 파일 저장 실패: {str(e)}")
-
-    report_filename = f"As_Is_Report_{os.path.splitext(pdf_file.filename)[0]}.md"
-
-    background_tasks.add_task(run_as_is_analysis_background, temp_pdf_path, report_filename)
-
-    return AsIsReportResponse(
-        message="PDF 파일 업로드 성공. As-Is 분석 보고서 생성을 백그라운드에서 시작합니다.",
-        report_filename=f"서버의 '{OUTPUT_ASIS_DIR}/{report_filename}' 경로에 저장될 예정입니다." 
-        # 실제로는 다운로드 가능한 URL이나 작업 ID 반환
-    )
-
-
-========
         # 실패 상태로 업데이트
         update_job_status(
             job_id=job_id,
@@ -112,4 +106,3 @@ def process_as_is_background(pdf_content: bytes, job_id: str):
             error=str(e),
             message=f"As-Is 분석 실패: {str(e)}"
         )
->>>>>>>> 39f369a8c2a946843058be1c137ce9d9fe620747:app/api/v1/asis.py
