@@ -6,7 +6,7 @@ from fastapi import APIRouter, UploadFile, File, HTTPException, BackgroundTasks
 from fastapi.responses import JSONResponse
 
 # 수정된 서비스와 설정 파일을 가져옵니다.
-from app.services.background_asis_services import process_asis_document_openai
+from app.services.background_asis_services import process_asis_report
 # from app.services.background_asis_services import process_asis_document
 from app.core import config
 
@@ -63,7 +63,7 @@ router = APIRouter()
 
 
 # === OpenAI(GPT)용 엔드포인트 추가 ===
-@router.post("/as-is/start-analysis-openai")
+@router.post("/as-is/start-analysis")
 async def start_as_is_analysis_openai(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(..., description="OpenAI(GPT)로 분석할 RFP PDF 파일")
@@ -85,7 +85,7 @@ async def start_as_is_analysis_openai(
 
         # GPT용 백그라운드 태스크를 추가합니다.
         background_tasks.add_task(
-            process_asis_document_openai,
+            process_asis_report,
             file_path=temp_file_path,
             file_type=file.content_type
         )
