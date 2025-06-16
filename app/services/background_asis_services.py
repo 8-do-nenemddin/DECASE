@@ -1,104 +1,78 @@
 import os
-import traceback
-from io import BytesIO
+import tempfile
+from pathlib import Path
+from markdown_pdf import MarkdownPdf, Section
 
-from fastapi import APIRouter, BackgroundTasks, UploadFile, File, HTTPException
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-from reportlab.lib.enums import TA_JUSTIFY
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-import markdown
+# 다른 import 구문들은 이미 존재한다고 가정합니다.
+from app.core.config import CHUNK_SIZE, CHUNK_OVERLAP
+from app.services.file_processing_service import extract_pages_as_documents, create_chunks_from_documents
+from app.agents.asis_extraction_agent import extract_asis_and_generate_report
 
-from app.schemas.asis import AsIsReportResponse, TargetSection
-from app.services.file_processing_service import (
-    extract_text_with_page_info_from_pdf,
-    get_toc_raw_text_from_page_list
-)
-from app.agents.asis_analysis_agent import (
-    parse_toc_with_llm_agent,
-    get_target_sections
-)
-from app.agents.report_generation_agent import generate_as_is_report_service
 
-# 한글 폰트 등록
-FONT_PATH = os.path.join(os.path.dirname(__file__), '..', '..', 'fonts', 'NanumGothic.ttf')
-pdfmetrics.registerFont(TTFont('NanumGothic', FONT_PATH))
+def clean_markdown_fences(markdown_text: str) -> str:
+    # (변경 없음)
+    if not isinstance(markdown_text, str):
+        return ""
+    text = markdown_text.strip()
+    # ... (이하 동일)
+    if text.startswith("```markdown"):
+        text = text[len("```markdown"):].lstrip()
+    elif text.startswith("```"):
+        text = text[len("```"):].lstrip()
+    if text.endswith("```"):
+        text = text[:-3].rstrip()
+    return text
 
-def run_as_is_analysis(pdf_content: bytes) -> bytes:
+
+def run_as_is_analysis_and_return_bytes(pdf_content_bytes: bytes, output_pdf_path: Path) -> bytes:
+    """
+    (수정됨) PDF를 분석하여, 결과를 'output_pdf_path'에 파일로 저장하고,
+    동시에 해당 파일의 내용을 바이트(bytes) 객체로 반환합니다.
+    """
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_pdf:
+        temp_pdf.write(pdf_content_bytes)
+        temp_pdf_path = temp_pdf.name
+
     try:
-        print(f"As-Is background 분석 시작: {pdf_content}")
-        # Create a temporary BytesIO object for the PDF content
-        pdf_buffer = BytesIO(pdf_content)
-        
-        # Extract text from PDF
-        page_texts, total_pages = extract_text_with_page_info_from_pdf(pdf_buffer)
-        if not page_texts:
-            raise ValueError("PDF에서 텍스트를 추출하지 못했습니다.")
+        # 1 & 2. PDF 텍스트 추출 및 청크 분할 (이전과 동일)
+        print(f"임시 파일 처리 시작: {temp_pdf_path}")
+        docs = extract_pages_as_documents(temp_pdf_path)
+        if not docs: raise ValueError("PDF에서 텍스트를 추출하지 못했습니다.")
 
-        print(f"PDF 텍스트 추출 완료: 총 {total_pages}페이지")
-        
-        toc_raw_text = get_toc_raw_text_from_page_list(page_texts, toc_page_numbers=[2, 3]) # 예시 목차 페이지
+        print("문서를 청크로 분할 중...")
+        chunks = create_chunks_from_documents(docs, chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)
+        if not chunks: raise ValueError("문서를 청크로 분할하지 못했습니다.")
 
-        parsed_toc = None
-        if toc_raw_text:
-            parsed_toc = parse_toc_with_llm_agent(toc_raw_text)
+        # 3 & 4. LLM 호출 및 결과 정리 (이전과 동일)
+        print("AS-IS 보고서 생성 시작 (LLM 호출)...")
+        markdown_report_raw = extract_asis_and_generate_report(chunks)
+        markdown_report_clean = clean_markdown_fences(markdown_report_raw)
+        
+        # 5. PDF 생성
+        print("마크다운 콘텐츠를 PDF로 변환 시작...")
+        user_css = "body { font-family: 'NanumGothic', 'Malgun Gothic', sans-serif; } @page { margin: 1in; }"
+        pdf_converter = MarkdownPdf(toc_level=2)
+        pdf_converter.add_section(Section(markdown_report_clean), user_css=user_css)
+        
+        # 6-1. 지정된 경로에 파일로 먼저 저장합니다.
+        print(f"PDF 파일 저장 중... 경로: {output_pdf_path}")
+        pdf_converter.save(output_pdf_path)
+        print("✅ PDF 파일 저장 성공!")
 
-        target_sections = []
-        if parsed_toc:
-            target_sections = get_target_sections(parsed_toc, total_pages)
-        else: # 목차 파싱 실패 또는 목차 없음
-            print("경고: 목차 정보가 없거나 파싱에 실패하여 전체 문서를 대상으로 분석합니다.")
-            target_sections = [TargetSection(title='전체 문서', start_page=1, end_page=total_pages)]
+        # 6-2. 저장된 파일을 다시 '바이너리 읽기 모드(rb)'로 열어서 내용을 읽습니다.
+        print(f"저장된 PDF 파일을 바이트로 읽는 중... 경로: {output_pdf_path}")
+        with open(output_pdf_path, 'rb') as f:
+            output_pdf_bytes = f.read()
+        print("✅ PDF 바이트 변환 성공!")
+        
+        return output_pdf_bytes
 
-        if not target_sections: # 이 경우는 get_target_sections_service가 빈 리스트를 반환했을 때 (예: 후보는 있지만 최종 타겟이 없을때)
-            target_sections = [TargetSection(title='전체 문서 (대상 섹션 식별 실패)', start_page=1, end_page=total_pages)]
-
-        # 마크다운 형식
-        markdown_content = generate_as_is_report_service(
-            page_texts_list=page_texts,
-            total_pages=total_pages,
-            target_sections=target_sections
-        )
-
-        # Convert markdown to HTML
-        html_content = markdown.markdown(markdown_content)
-        
-        # Create PDF using ReportLab
-        output_buffer = BytesIO()
-        doc = SimpleDocTemplate(output_buffer, pagesize=letter)
-        styles = getSampleStyleSheet()
-        
-        # Create custom style for better readability with Korean font
-        custom_style = ParagraphStyle(
-            'CustomStyle',
-            parent=styles['Normal'],
-            fontName='NanumGothic',
-            fontSize=11,
-            leading=14,
-            alignment=TA_JUSTIFY,
-            spaceBefore=6,
-            spaceAfter=6
-        )
-        
-        # Convert HTML content to paragraphs
-        story = []
-        for line in html_content.split('\n'):
-            if line.strip():
-                # Remove HTML tags for simplicity
-                clean_text = line.replace('<p>', '').replace('</p>', '')
-                p = Paragraph(clean_text, custom_style)
-                story.append(p)
-                story.append(Spacer(1, 6))
-        
-        # Build PDF
-        doc.build(story)
-        output_buffer.seek(0)
-        
-        return output_buffer.getvalue()
 
     except Exception as e:
-        print(f"As-Is 분석 백그라운드 작업 중 오류: {e}")
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"❌ 분석/저장/변환 중 오류 발생: {e}")
+        raise e
+    
+    finally:
+        if os.path.exists(temp_pdf_path):
+            os.remove(temp_pdf_path)
+            print(f"임시 파일 삭제: {temp_pdf_path}")

@@ -7,14 +7,6 @@ from fastapi.concurrency import run_in_threadpool
 from concurrent.futures import ThreadPoolExecutor
 from app.schemas.requirement import ProcessResponse
 from app.graph.rfp_graph import get_rfp_graph_app
-<<<<<<<< HEAD:app/api/v1/process copy.py
-from app.services.background_processing_service_copy import background_process_and_save
-from app.core.config import (
-    INPUT_DIR,
-    OUTPUT_CSV_DIR,
-    OUTPUT_JSON_DIR
-)
-========
 from app.services.background_processing_service import process_requirements_in_memory
 from app.core.config import OPENAI_API_KEY, LLM_MODEL
 from app.agents.requirements_extract_agent import extract_requirement_sentences_agent
@@ -22,7 +14,6 @@ from app.agents.requirements_refine_agent import name_classify_describe_requirem
 from app.services.file_processing_service import extract_pages_as_documents, create_chunks_from_documents
 from app.core.config import INPUT_DIR, OUTPUT_JSON_DIR, CHUNK_SIZE, CHUNK_OVERLAP
 from app.api.v1.jobs import job_store, update_job_status
->>>>>>>> 39f369a8c2a946843058be1c137ce9d9fe620747:app/api/v1/process.py
 
 router = APIRouter()
 compiled_app = get_rfp_graph_app()
