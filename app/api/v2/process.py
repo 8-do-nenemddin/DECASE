@@ -7,22 +7,13 @@ from fastapi.concurrency import run_in_threadpool
 from concurrent.futures import ThreadPoolExecutor
 from app.schemas.requirement import ProcessResponse
 from app.graph.rfp_graph import get_rfp_graph_app
-<<<<<<<< HEAD:app/api/v1/process copy.py
-from app.services.background_processing_service_copy import background_process_and_save
-from app.core.config import (
-    INPUT_DIR,
-    OUTPUT_CSV_DIR,
-    OUTPUT_JSON_DIR
-)
-========
 from app.services.background_processing_service import process_requirements_in_memory
 from app.core.config import OPENAI_API_KEY, LLM_MODEL
 from app.agents.requirements_extract_agent import extract_requirement_sentences_agent
 from app.agents.requirements_refine_agent import name_classify_describe_requirements_agent
 from app.services.file_processing_service import extract_pages_as_documents, create_chunks_from_documents
 from app.core.config import INPUT_DIR, OUTPUT_JSON_DIR, CHUNK_SIZE, CHUNK_OVERLAP
-from app.api.v1.jobs import job_store, update_job_status
->>>>>>>> 39f369a8c2a946843058be1c137ce9d9fe620747:app/api/v1/process.py
+from app.api.v2.jobs import job_store, update_job_status
 
 router = APIRouter()
 compiled_app = get_rfp_graph_app()
@@ -31,6 +22,8 @@ compiled_app = get_rfp_graph_app()
 thread_pool = ThreadPoolExecutor(max_workers=4)
 
 os.makedirs(INPUT_DIR, exist_ok=True)
+os.makedirs("app/docs", exist_ok=True)
+
 
 @router.post("/srs-agent/start")
 async def start_srs_analysis(
@@ -76,12 +69,22 @@ async def get_srs_status(job_id: str):
     
     job = job_store[job_id]
     
-    return {
+    # Create response data
+    response_data = {
         "job_id": job_id,
         "state": job["status"],
         "message": job.get("message", ""),
         "requirements": job.get("result", []) if job["status"] == "COMPLETED" else []
     }
+    
+    # Save to JSON file
+    output_filename = f"status_{job_id}.json"
+    output_path = os.path.join("app/docs", output_filename)
+    
+    with open(output_path, "w", encoding="utf-8") as json_file:
+        json.dump(response_data, json_file, ensure_ascii=False, indent=4)
+    
+    return response_data
 
 def process_srs_background(pdf_content: bytes, job_id: str, original_filename: str):
     """백그라운드에서 요구사항 분석 처리"""
