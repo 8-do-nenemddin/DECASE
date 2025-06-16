@@ -1,5 +1,5 @@
 from typing import List
-from app.services.llm_call_service import call_llm
+from app.services.llm_call_service import call_gpt
 
 # === 4. 에이전트 1: 청크 내 요구사항 핵심 문장 식별 ===
 def extract_requirement_sentences_agent(text_chunk: str) -> List[str]:
@@ -17,7 +17,7 @@ def extract_requirement_sentences_agent(text_chunk: str) -> List[str]:
     {text_chunk}
     --- 텍스트 끝 ---
     """
-    response_text = call_llm(system_prompt, user_prompt, is_json_output=False)
+    response_text = call_gpt(system_prompt, user_prompt, is_json_output=False)
 
     if response_text and response_text.strip().lower() != "no requirements found.":
         sentences = [sentence.strip() for sentence in response_text.splitlines() if sentence.strip()]

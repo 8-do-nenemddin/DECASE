@@ -89,21 +89,6 @@ def process_as_is_background(pdf_content: bytes, job_id: str):
         )
         
     except Exception as e:
-<<<<<<<< HEAD:app/api/v1/asis copy.py
-        raise HTTPException(status_code=500, detail=f"PDF 파일 저장 실패: {str(e)}")
-
-    report_filename = f"As_Is_Report_{os.path.splitext(pdf_file.filename)[0]}.md"
-
-    background_tasks.add_task(run_as_is_analysis_background, temp_pdf_path, report_filename)
-
-    return AsIsReportResponse(
-        message="PDF 파일 업로드 성공. As-Is 분석 보고서 생성을 백그라운드에서 시작합니다.",
-        report_filename=f"서버의 '{OUTPUT_ASIS_DIR}/{report_filename}' 경로에 저장될 예정입니다." 
-        # 실제로는 다운로드 가능한 URL이나 작업 ID 반환
-    )
-
-
-========
         # 실패 상태로 업데이트
         update_job_status(
             job_id=job_id,
@@ -112,4 +97,3 @@ def process_as_is_background(pdf_content: bytes, job_id: str):
             error=str(e),
             message=f"As-Is 분석 실패: {str(e)}"
         )
->>>>>>>> 39f369a8c2a946843058be1c137ce9d9fe620747:app/api/v1/asis.py
