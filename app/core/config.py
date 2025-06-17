@@ -14,8 +14,9 @@ GEMINI_MODEL = "gemini-2.5-flash-preview-05-20"
 INPUT_DIR = "app/docs"
 OUTPUT_CSV_DIR = "app/output/SRS_csv"
 OUTPUT_JSON_DIR = "app/output/SRS_json"
-OUTPUT_ASIS_DIR = "app/output/ASIS_md"
-OUTPUT_MOCKUP_DIR = "app/output/mockup_html"
+OUTPUT_UPLOADS_DIR = os.getenv("FILE_STORAGE_PATH_UPLOADS", "app/docs")
+OUTPUT_ASIS_DIR = os.getenv("FILE_STORAGE_PATH_ASIS", "uploads/analysis_results")
+OUTPUT_MOCKUP_DIR = os.getenv("FILE_STORAGE_PATH_MOCKUP", "app/output/mockup_html")
 
 SENTENCE_TRANSFORMER_MODEL = os.getenv("SENTENCE_TRANSFORMER_MODEL", "all-MiniLM-L6-v2")
 FAISS_INDEX_DIR = "app/indexes/faiss_indexes" # FAISS 인덱스 저장 디렉토리

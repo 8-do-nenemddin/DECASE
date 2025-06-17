@@ -4,6 +4,7 @@ import asyncio
 from fastapi import APIRouter, UploadFile, File, HTTPException, Form
 from pathlib import Path
 from datetime import datetime
+from app.core.config import OUTPUT_ASIS_DIR
 from app.models.document import Document
 from app.repositories.document_repository import DocumentRepository
 from app.core.mysql_config import get_mysql_db
@@ -27,7 +28,7 @@ async def process_as_is_background(pdf_content: bytes, job_id: str):
             raise ValueError("Job에 project_id 또는 member_id가 설정되지 않았습니다.")
             
         # 1. 최종 저장될 파일 경로를 '미리' 생성
-        upload_dir = Path("uploads/analysis_results")
+        upload_dir = Path(OUTPUT_ASIS_DIR)
         upload_dir.mkdir(parents=True, exist_ok=True)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"ASIS_RESULT_{project_id}_{timestamp}.pdf"
