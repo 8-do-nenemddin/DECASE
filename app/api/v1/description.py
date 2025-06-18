@@ -6,7 +6,7 @@ from typing import List, Dict, Any
 from app.schemas.description import DescriptionGenerationBatchResponse # 응답 모델
 # 파일 처리 서비스는 app/services/ 에 있다고 가정 (폴더 구조에 따라 경로 조정)
 from app.services.file_processing_service import load_requirements_from_json, save_results_to_json
-from app.agents.description_agent import get_detailed_description_agent
+from app.agents.srs.description_agent import get_detailed_description_agent
 
 router = APIRouter()
 

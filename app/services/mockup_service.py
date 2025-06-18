@@ -4,7 +4,7 @@ import json
 from typing import List, Tuple, Dict, Any
 
 # 새롭게 리팩토링된 UiMockupAgent를 임포트합니다.
-from app.agents.mockup_agent import UiMockupAgent
+from app.agents.mockup.mockup_agent import UiMockupAgent
 
 def run_mockup_generation_pipeline(
     input_data: str,

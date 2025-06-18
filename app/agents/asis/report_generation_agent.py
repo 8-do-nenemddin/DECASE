@@ -4,7 +4,7 @@ from typing import List, Dict, Any, Optional
 from app.core.config import OPENAI_API_KEY, LLM_MODEL
 from app.schemas.asis import ExtractedAsIsChunk, TargetSection
 from app.services.file_processing_service import extract_text_for_pages_from_list # 순환참조 주의, 구조개선 필요할 수 있음
-from app.agents.asis_extraction_agent import split_text_into_chunks, summarize_chunk_for_as_is_agent
+from app.agents.asis.asis_extraction_agent import split_text_into_chunks, summarize_chunk_for_as_is_agent
 
 # client = OpenAI(api_key=OPENAI_API_KEY)
 
