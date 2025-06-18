@@ -6,7 +6,7 @@ from markdown_pdf import MarkdownPdf, Section
 # 다른 import 구문들은 이미 존재한다고 가정합니다.
 from app.core.config import CHUNK_SIZE, CHUNK_OVERLAP
 from app.services.file_processing_service import extract_pages_as_documents, create_chunks_from_documents
-from app.agents.asis_extraction_agent import extract_asis_and_generate_report
+from app.agents.asis.asis_extraction_agent import extract_asis_and_generate_report
 
 
 def clean_markdown_fences(markdown_text: str) -> str:

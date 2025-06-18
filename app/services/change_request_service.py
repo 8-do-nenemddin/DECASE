@@ -1,6 +1,6 @@
 # app/services/change_request_service.py
 from typing import List, Dict, Any, Optional
-from app.agents.meeting_analyzer_agent import extract_actions_from_meeting_text
+from app.agents.update.meeting_analyzer_agent import extract_actions_from_meeting_text
 from app.services.faiss_search_service import load_faiss_index_and_metadata, search_similar_requirements
 from app.schemas.request import ChangeRequestResultItem, MeetingActionItem
 
