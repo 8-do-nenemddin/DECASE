@@ -64,6 +64,7 @@ async def send_callback(input_data: str, request: MockupRequest):
             for file_path, file_content in mockup_files:
                 zip_file.writestr(file_path, file_content.encode('utf-8'))
         zip_buffer.seek(0)
+        filename = f"mockup_{request.output_folder_name or 'result'}.zip"
     except Exception as e:
         status = "FAILED"
         error_message = str(e)
