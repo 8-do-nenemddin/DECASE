@@ -9,8 +9,8 @@ from app.schemas.requirement import ProcessResponse
 from app.graph.rfp_graph import get_rfp_graph_app
 from app.services.background_processing_service import process_requirements_in_memory
 from app.core.config import OPENAI_API_KEY, LLM_MODEL
-from app.agents.requirements_extract_agent import extract_requirement_sentences_agent
-from app.agents.requirements_refine_agent import name_classify_describe_requirements_agent
+from app.agents.srs.requirements_extract_agent import extract_requirement_sentences_agent
+from app.agents.srs.requirements_refine_agent import name_classify_describe_requirements_agent
 from app.services.file_processing_service import extract_pages_as_documents, create_chunks_from_documents
 from app.core.config import INPUT_DIR, OUTPUT_JSON_DIR, CHUNK_SIZE, CHUNK_OVERLAP
 from app.api.v1.jobs import job_store, update_job_status

@@ -5,9 +5,9 @@ from typing import List, Dict, Any, Tuple
 from openai import OpenAI
 import anthropic
 
-from app.agents.mockup_analyzer_agent import RequirementsAnalyzer
-from app.agents.mockup_planner_agent import MockupPlanner
-from app.agents.mockup_generator_agent import HtmlGenerator
+from app.agents.mockup.mockup_analyzer_agent import RequirementsAnalyzer
+from app.agents.mockup.mockup_planner_agent import MockupPlanner
+from app.agents.mockup.mockup_generator_agent import HtmlGenerator
 from app.services.file_processing_service import sanitize_filename
 from typing import List, Dict
 

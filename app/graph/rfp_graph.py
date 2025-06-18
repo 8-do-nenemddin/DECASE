@@ -5,9 +5,9 @@ from typing import Dict, Any
 from langgraph.graph import StateGraph, END
 
 from app.schemas.requirement import RequirementAnalysisState
-from app.agents.classification_agent import classify_requirement_agent
-from app.agents.difficulty_agent import get_difficulty_agent
-from app.agents.importance_agent import get_importance_agent
+from app.agents.srs.classification_agent import classify_requirement_agent
+from app.agents.srs.difficulty_agent import get_difficulty_agent
+from app.agents.srs.importance_agent import get_importance_agent
 # <<< 1. ID 매니저 임포트 >>>
 from app.services.id_management_service import RequirementIdManager
 

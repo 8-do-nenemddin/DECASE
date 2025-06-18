@@ -4,8 +4,8 @@ import os
 import json
 from fastapi import APIRouter, UploadFile, File, HTTPException, Form
 from app.schemas.requirement import RefineResponse # 응답 모델 확인 필요
-from app.agents.requirements_extract_agent import extract_requirement_sentences_agent
-from app.agents.requirements_refine_agent import name_classify_describe_requirements_agent
+from app.agents.srs.requirements_extract_agent import extract_requirement_sentences_agent
+from app.agents.srs.requirements_refine_agent import name_classify_describe_requirements_agent
 from app.services.file_processing_service import extract_pages_as_documents, create_chunks_from_documents
 from app.core.config import INPUT_DIR, OUTPUT_JSON_DIR, CHUNK_SIZE, CHUNK_OVERLAP
 
