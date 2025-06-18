@@ -2,6 +2,7 @@
 import os
 import json
 from typing import List, Tuple, Dict, Any
+from app.core.config import OPENAI_API_KEY, ANTHROPIC_API_KEY
 
 # 새롭게 리팩토링된 UiMockupAgent를 임포트합니다.
 from app.agents.mockup.mockup_agent import UiMockupAgent
@@ -21,8 +22,6 @@ def run_mockup_generation_pipeline(
     Returns:
         List[Tuple[str, str]]: (파일 경로, 파일 내용) 튜플의 리스트
     """
-    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-    ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 
     if not OPENAI_API_KEY or not ANTHROPIC_API_KEY:
         raise ValueError("OpenAI 또는 Anthropic API 키가 설정되지 않았습니다.")

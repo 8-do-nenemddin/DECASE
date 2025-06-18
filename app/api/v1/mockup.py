@@ -27,11 +27,12 @@ class RequirementItem(BaseModel):
     importance: str
 
 class MockupRequest(BaseModel):
+    callback_url: str
     requirements: List[RequirementItem]
     output_folder_name: str = None
     project_id: int
     revision_count: int
-    callback_url: str
+    
 
 @router.post("/generate-mockup")
 async def generate_mockup_endpoint(
@@ -41,6 +42,7 @@ async def generate_mockup_endpoint(
     try:
         # 요구사항 데이터를 JSON 문자열로 변환 (UTF-8 인코딩 사용)
         input_data = json.dumps([req.dict() for req in request.requirements], ensure_ascii=False, indent=2)
+        print(input_data)
 
         # 비동기로 콜백 호출
         background_tasks.add_task(
@@ -53,33 +55,41 @@ async def generate_mockup_endpoint(
         raise HTTPException(status_code=500, detail=f"목업 생성 실패: {str(e)}")
     
 async def send_callback(input_data: str, request: MockupRequest):
-    # 목업 생성 및 zip 파일 생성
     zip_buffer = io.BytesIO()
-    with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
-        # 목업 생성 파이프라인 실행 및 결과를 zip에 추가
-        mockup_files = run_mockup_generation_pipeline(input_data, request.output_folder_name)
-        for file_path, file_content in mockup_files:
-            # 파일 내용을 UTF-8로 인코딩하여 zip에 추가
-            zip_file.writestr(file_path, file_content.encode('utf-8'))
-        
-    zip_buffer.seek(0)
-
-    # 파일명 생성 및 인코딩
-    filename = f"mockup_{request.output_folder_name or 'result'}.zip"
+    status = "SUCCESS"
+    error_message = None
+    try:
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+            mockup_files = run_mockup_generation_pipeline(input_data, request.output_folder_name)
+            for file_path, file_content in mockup_files:
+                zip_file.writestr(file_path, file_content.encode('utf-8'))
+        zip_buffer.seek(0)
+        filename = f"mockup_{request.output_folder_name or 'result'}.zip"
+    except Exception as e:
+        status = "FAILED"
+        error_message = str(e)
+        print(f"[MOCKUP] 목업 생성 실패: {error_message}")
+        # 실패 시 zip_buffer를 비워서 전송
+        zip_buffer = io.BytesIO()
+        filename = f"mockup_{request.output_folder_name or 'result'}_failed.zip"
+    
     encoded_filename = quote(filename.encode('utf-8'))
-
+    print(f"[MOCKUP] 콜백 URL로 zip 파일 전송 시작: {request.callback_url}")
     async with httpx.AsyncClient() as client:
         files = {
-            "mockUpZip": ({encoded_filename}, zip_buffer.getvalue, "application/zip"),
+            "mockUpZip": (encoded_filename, zip_buffer.getvalue(), "application/zip"),
         }
         data = {
             "revisionCount": str(request.revision_count),
-            "status": "SUCCESS"
+            "status": status,
         }
+        if error_message:
+            data["errorMessage"] = error_message
         params = {"projectId": request.project_id}
         try:
-            await client.post(request.callback_url, params=params, data=data, files=files, timeout=60)
+            response = await client.post(request.callback_url, params=params, data=data, files=files, timeout=60)
+            print(f"[MOCKUP] 콜백 요청 완료. 응답 코드: {response.status_code}")
         except Exception as e:
-            # 실패시 로깅 등 처리
+            print(f"[MOCKUP] 콜백 요청 실패: {e}")
             pass
     
