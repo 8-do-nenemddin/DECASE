@@ -13,7 +13,8 @@ from app.api.v3 import asis_db as asis_router
 app = FastAPI(
     title="RFP Analysis Service",
     description="RFP 문서를 분석하여 요구사항을 분류, 평가하고 SRS 문서를 생성하는 API",
-    version="0.1.0"
+    version="0.1.0",
+    root_path='/ai/api/v1/decase'
 )
 
 # /ai/api/v1 접두사와 함께 process 라우터 포함

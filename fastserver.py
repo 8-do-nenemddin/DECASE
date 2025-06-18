@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import socket
 
-app = FastAPI()
+app = FastAPI(root_path='/ai/api/v1/decase')
 
 # Initial state
 data = {
