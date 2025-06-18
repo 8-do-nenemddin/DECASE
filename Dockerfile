@@ -1,17 +1,24 @@
-FROM python:3.11-alpine
+FROM python:3.11-slim
 
-# pip 경고 억제 환경 변수 설정
-ENV PIP_ROOT_USER_ACTION=ignore
+WORKDIR /app
 
-RUN apk add --no-cache bash curl gcc musl-dev linux-headers jq
+# 필수 패키지 설치 및 apt 캐시 정리
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    git \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# FastAPI 및 기타 라이브러리 설치
-RUN pip install --upgrade pip && \
-    pip install flask requests && \
-    pip install fastapi uvicorn psutil python-multipart && \
-    pip install psutil prometheus-client
+# pip 최신 버전으로 업그레이드
+RUN python3 -m pip install --upgrade pip
 
-# lifecycle (prob, healthz, metrics) 테스트를 위한 코드 추가
-COPY fastserver.py fastserver.py
+# requirements 설치 (캐시 비활성화)
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
 
-CMD ["python3", "fastserver.py"]
+# 애플리케이션 코드 복사
+COPY . /app
+
+EXPOSE 8000 8081 8080
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

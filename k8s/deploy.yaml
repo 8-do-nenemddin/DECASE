@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: decase-ai
-        image: amdp-registry.skala-ai.com/skala25a/sk-team-08-decase-ai:1.0.0-11-bbd75fec2b69
+        image: amdp-registry.skala-ai.com/skala25a/sk-team-08-decase-ai:1.0.0-16-6b48b652645f
         imagePullPolicy: Always
         env:
         - name: LOGGING_LEVEL
@@ -29,3 +29,8 @@ spec:
           value: sk-team-08
         - name: NAMESPACE
           value: sk-team-08
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ai-secret
+              key: OPENAI_API_KEY
