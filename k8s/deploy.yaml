@@ -29,3 +29,8 @@ spec:
           value: sk-team-08
         - name: NAMESPACE
           value: sk-team-08
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: decase-secret
+              key: OPENAI_API_KEY
