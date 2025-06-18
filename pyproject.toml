@@ -15,27 +15,19 @@ langchain = "0.*"
 langchain-core = "0.*"
 langchain-community = "0.*"
 langchainhub = "0.*"
-langsmith = "0.*"
 openai = "1.*"
 langchain-experimental = "^0.3.4"
 langchain-openai = "^0.3.18"
-
-# 자연어 처리 및 한글 처리
-kiwipiepy = "0.*"
-konlpy = "0.*"
 
 # 데이터 분석 및 벡터 검색
 pandas = "2.*"
 faiss-cpu = "1.*"
 scikit-learn = "1.*"
-rank-bm25 = "0.*"
 
 # 파일 및 문서 처리
 pymupdf = "1.*"
 pypdf = "4.*"
-pypdf2 = "^3.0.1"
 pdfplumber = "0.*"
-pdfminer-six = "20231228"
 docx2txt = "0.*"
 unstructured = {version = "0.*", extras = ["all-docs"]}
 
@@ -43,12 +35,6 @@ unstructured = {version = "0.*", extras = ["all-docs"]}
 matplotlib = "3.*"
 seaborn = "0.*"
 streamlit = "1.*"
-jupyter = "1.*"
-notebook = "7.*"
-
-# 딥러닝 및 모델 관련
-torch = "^2.3.1"
-torchvision = "0.*"
 
 # 기타 유틸리티
 python-dotenv = "1.*"
@@ -58,7 +44,6 @@ pillow = "10.*"
 tiktoken = "0.*"
 tenacity = "8.*"
 nest-asyncio = "1.*"
-ipykernel = "^6.29.5"
 openai-whisper = "^20240930"
 numpy = "<2.0"
 langgraph = "^0.4.7"

@@ -21,3 +21,16 @@ docker tag  ${NAME}-${IMAGE_NAME}:${VERSION} ${DOCKER_REGISTRY}/${NAME}-${IMAGE_
 
 # Docker 이미지 푸시
 docker push ${DOCKER_REGISTRY}/${NAME}-${IMAGE_NAME}:${VERSION}
+
+# 이미지 해시 가져오기
+IMAGE_HASH=$(docker images --no-trunc --quiet ${DOCKER_REGISTRY}/${NAME}-${IMAGE_NAME}:${VERSION} | cut -d: -f2)
+
+# 해시 태그 추가 및 푸시
+if [ ! -z "$IMAGE_HASH" ]; then
+    echo "Adding hash tag: ${IMAGE_HASH}"
+    docker tag ${DOCKER_REGISTRY}/${NAME}-${IMAGE_NAME}:${VERSION} ${DOCKER_REGISTRY}/${NAME}-${IMAGE_NAME}:${IMAGE_HASH}
+    docker push ${DOCKER_REGISTRY}/${NAME}-${IMAGE_NAME}:${IMAGE_HASH}
+else
+    echo "Failed to get image hash"
+    exit 1
+fi
