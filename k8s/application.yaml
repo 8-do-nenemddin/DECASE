@@ -10,7 +10,7 @@ spec:
   project: class-2
   source:
     path: k8s
-    repoURL: https://github.com/8-do-nenemddin/DECASE-AI
+    repoURL: https://github.com/8-do-nenemddin/DECASE-AI-FIGHTING.git
     targetRevision: HEAD
   syncPolicy:
     automated:
