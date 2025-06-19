@@ -4,7 +4,7 @@ metadata:
   name: decase-ai
   namespace: sk-team-08
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: decase-ai
