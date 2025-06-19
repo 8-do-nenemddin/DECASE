@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: decase-ai
-        image: amdp-registry.skala-ai.com/skala25a/sk-team-08-decase-ai:1.0.0-26-f8a5e789b13a
+        image: amdp-registry.skala-ai.com/skala25a/sk-team-08-decase-ai:1.0.0-27-bd84143ee2a5
         imagePullPolicy: Always
         env:
         - name: LOGGING_LEVEL
